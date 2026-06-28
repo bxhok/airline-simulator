@@ -1,35 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Airline Tycoon Simulator v1.0</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-/* ========== CSS VARIABLES ========== */
 :root {
-    --bg: #1a1a2e;
-    --surface: #16213e;
-    --primary: #2c3e50;
-    --accent: #27ae60;
-    --secondary: #34495e;
-    --text: #ecf0f1;
-    --text-dim: #bdc3c7;
-    --danger: #e74c3c;
-    --warning: #f39c12;
-    --info: #3498db;
-    --sidebar-w: 310px;
-    --info-w: 290px;
-    --top-h: 48px;
-    --bottom-h: 34px;
-    --radius: 6px;
+    --bg: #1a1a2e; --surface: #16213e; --primary: #2c3e50; --accent: #27ae60;
+    --secondary: #34495e; --text: #ecf0f1; --text-dim: #bdc3c7; --danger: #e74c3c;
+    --warning: #f39c12; --info: #3498db; --sidebar-w: 320px; --info-w: 300px;
+    --top-h: 48px; --bottom-h: 36px; --radius: 6px;
     --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    --mono: 'Consolas', 'Courier New', monospace;
-    --transition: 0.2s;
+    --mono: 'Consolas', 'Courier New', monospace; --transition: 0.2s;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body,#app{width:100%;height:100vh;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;user-select:none;}
-/* ===== TOP BAR ===== */
 #top-bar{height:var(--top-h);background:var(--primary);display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:2px solid var(--accent);z-index:1000;position:relative;}
 .top-left{display:flex;gap:14px;align-items:center;font-family:var(--mono);font-size:12px;}
 .top-center{flex:1;text-align:center;}
@@ -37,9 +23,7 @@ html,body,#app{width:100%;height:100vh;overflow:hidden;font-family:var(--font);b
 .top-right{display:flex;gap:14px;align-items:center;font-family:var(--mono);font-size:13px;}
 #money-display{color:var(--accent);font-weight:700;font-size:15px;}
 #reputation-display{color:var(--text-dim);}
-/* ===== MAIN LAYOUT ===== */
 #main-layout{display:flex;height:calc(100vh - var(--top-h) - var(--bottom-h));width:100%;}
-/* ===== SIDEBAR ===== */
 #sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--surface);display:flex;flex-direction:column;border-right:1px solid var(--secondary);overflow:hidden;}
 #sidebar-tabs{display:flex;flex-wrap:wrap;background:var(--primary);border-bottom:1px solid var(--secondary);}
 .tab-btn{flex:1 1 auto;padding:7px 4px;background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-size:10px;transition:all var(--transition);border-bottom:2px solid transparent;white-space:nowrap;font-family:var(--font);}
@@ -50,35 +34,30 @@ html,body,#app{width:100%;height:100vh;overflow:hidden;font-family:var(--font);b
 #sidebar-content::-webkit-scrollbar-thumb{background:var(--secondary);border-radius:3px;}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
-/* ===== MAP ===== */
 #map-container{flex:1;position:relative;overflow:hidden;}
 #map{width:100%;height:100%;background:#0d1b2a;}
 #map-controls{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:5px;background:rgba(26,26,46,0.92);padding:7px 10px;border-radius:22px;z-index:500;border:1px solid var(--secondary);}
 .map-btn{padding:5px 10px;background:transparent;border:1px solid var(--secondary);color:var(--text);border-radius:14px;cursor:pointer;font-size:11px;transition:all var(--transition);font-family:var(--mono);}
 .map-btn:hover{background:var(--secondary);}
 .map-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
-/* ===== INFO PANEL ===== */
 #info-panel{width:var(--info-w);min-width:var(--info-w);background:var(--surface);border-left:1px solid var(--secondary);display:flex;flex-direction:column;overflow:hidden;}
-#selected-info{padding:10px;border-bottom:1px solid var(--secondary);min-height:130px;max-height:220px;overflow-y:auto;}
+#selected-info{padding:10px;border-bottom:1px solid var(--secondary);min-height:140px;max-height:240px;overflow-y:auto;}
 #selected-info h3{color:var(--accent);margin-bottom:6px;font-size:13px;text-transform:uppercase;letter-spacing:1px;}
-#detail-content{font-size:11px;line-height:1.5;color:var(--text-dim);}
+#detail-content{font-size:11px;line-height:1.6;color:var(--text-dim);}
 #notifications-container{flex:1;overflow-y:auto;padding:8px;scrollbar-width:thin;scrollbar-color:var(--secondary) transparent;}
 .notification{padding:7px 9px;margin-bottom:5px;border-radius:var(--radius);font-size:10px;background:var(--primary);border-left:3px solid var(--info);animation:slideIn 0.3s ease;}
 .notification.warning{border-left-color:var(--warning);}
 .notification.success{border-left-color:var(--accent);}
 .notification.error{border-left-color:var(--danger);}
 @keyframes slideIn{from{transform:translateX(20px);opacity:0;}to{transform:translateX(0);opacity:1;}}
-/* ===== BOTTOM BAR ===== */
 #bottom-bar{height:var(--bottom-h);background:var(--primary);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:11px;border-top:1px solid var(--secondary);font-family:var(--mono);}
 #fleet-status{color:var(--text-dim);}
 #weather-status{color:var(--info);}
-/* ===== BUTTONS ===== */
 .action-btn{display:block;width:100%;padding:9px 14px;margin:5px 0;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:600;letter-spacing:0.5px;transition:all var(--transition);text-transform:uppercase;font-family:var(--font);}
 .action-btn:hover{background:#219a52;transform:translateY(-1px);}
 .danger-btn{background:var(--danger);}
 .danger-btn:hover{background:#c0392b;}
 .small-btn{padding:5px 10px;font-size:10px;margin:2px;width:auto;display:inline-block;}
-/* ===== CARDS ===== */
 .plane-card,.route-card,.contract-card,.airport-card{background:var(--primary);border-radius:var(--radius);padding:9px;margin-bottom:7px;border:1px solid var(--secondary);cursor:pointer;transition:all var(--transition);font-size:11px;}
 .plane-card:hover,.route-card:hover,.contract-card:hover,.airport-card:hover{border-color:var(--accent);background:#243342;}
 .plane-name{font-weight:700;color:var(--accent);font-size:12px;}
@@ -87,20 +66,17 @@ html,body,#app{width:100%;height:100vh;overflow:hidden;font-family:var(--font);b
 .status-idle{color:#27ae60!important;}
 .status-maintenance{color:#f39c12!important;}
 .status-loading{color:#9b59b6!important;}
-/* ===== MODAL ===== */
 #modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:3000;}
 #modal-overlay.hidden{display:none;}
-#modal-content{background:var(--surface);border-radius:10px;padding:20px;min-width:400px;max-width:580px;max-height:82vh;overflow-y:auto;border:1px solid var(--accent);color:var(--text);}
+#modal-content{background:var(--surface);border-radius:10px;padding:20px;min-width:420px;max-width:600px;max-height:85vh;overflow-y:auto;border:1px solid var(--accent);color:var(--text);}
 #modal-content h2{color:var(--accent);margin-bottom:14px;font-size:16px;}
 #modal-content button{margin:3px;padding:7px 14px;border:1px solid var(--secondary);background:var(--primary);color:var(--text);border-radius:var(--radius);cursor:pointer;font-family:var(--font);font-size:12px;}
 #modal-content button:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
 #modal-content input,#modal-content select{width:100%;padding:7px;margin:3px 0;background:var(--primary);border:1px solid var(--secondary);color:var(--text);border-radius:var(--radius);font-family:var(--font);font-size:12px;}
 #modal-content label{display:block;margin-top:7px;font-size:11px;color:var(--text-dim);}
 .modal-close{float:right;background:var(--danger)!important;border:none!important;padding:5px 10px!important;font-size:16px!important;}
-/* ===== RESPONSIVE ===== */
 @media(max-width:1024px){:root{--sidebar-w:260px;--info-w:220px;}.tab-btn{font-size:9px;padding:5px 3px;}}
 @media(max-width:768px){#main-layout{flex-direction:column;}#sidebar{width:100%;min-width:100%;max-height:32%;}#info-panel{width:100%;min-width:100%;max-height:28%;}#map-container{flex:1;min-height:40%;}#map-controls{bottom:8px;}}
-/* ===== LEAFTLET OVERRIDES ===== */
 .leaflet-container{background:#0d1b2a!important;font-family:var(--font)!important;}
 .leaflet-tooltip{background:var(--primary)!important;color:var(--text)!important;border:1px solid var(--accent)!important;font-size:11px!important;padding:4px 8px!important;border-radius:4px!important;}
 </style>
@@ -108,34 +84,34 @@ html,body,#app{width:100%;height:100vh;overflow:hidden;font-family:var(--font);b
 <body>
 <div id="app">
     <div id="top-bar">
-        <div class="top-left"><span id="game-time">Day 1, Jan, Year 1 | 08:00</span><span id="time-speed">▶ 1x</span></div>
-        <div class="top-center"><h1 id="game-title">Airline Tycoon</h1></div>
-        <div class="top-right"><div id="money-display">$1,000,000</div><div id="reputation-display">Rep: 50%</div></div>
+        <div class="top-left"><span id="game-time">День 1, Янв, Год 1 | 08:00</span><span id="time-speed">▶ 1x</span></div>
+        <div class="top-center"><h1 id="game-title">АвиаМагнат</h1></div>
+        <div class="top-right"><div id="money-display">$1 000 000</div><div id="reputation-display">Реп: 50%</div></div>
     </div>
     <div id="main-layout">
         <div id="sidebar">
             <div id="sidebar-tabs">
-                <button class="tab-btn active" data-tab="fleet">✈ Fleet</button>
-                <button class="tab-btn" data-tab="routes">🗺 Routes</button>
-                <button class="tab-btn" data-tab="contracts">📋 Contracts</button>
-                <button class="tab-btn" data-tab="airports">🏢 Airports</button>
-                <button class="tab-btn" data-tab="economy">📊 Economy</button>
-                <button class="tab-btn" data-tab="achievements">🏆 Achievements</button>
-                <button class="tab-btn" data-tab="settings">⚙ Settings</button>
+                <button class="tab-btn active" data-tab="fleet">✈ Флот</button>
+                <button class="tab-btn" data-tab="routes">🗺 Маршруты</button>
+                <button class="tab-btn" data-tab="contracts">📋 Контракты</button>
+                <button class="tab-btn" data-tab="airports">🏢 Аэропорты</button>
+                <button class="tab-btn" data-tab="economy">📊 Экономика</button>
+                <button class="tab-btn" data-tab="achievements">🏆 Достижения</button>
+                <button class="tab-btn" data-tab="settings">⚙ Настройки</button>
             </div>
             <div id="sidebar-content">
-                <div id="tab-fleet" class="tab-panel active"><div id="fleet-list"></div><button id="btn-buy-plane" class="action-btn">Buy Aircraft</button></div>
-                <div id="tab-routes" class="tab-panel"><div id="routes-list"></div><button id="btn-create-route" class="action-btn">Create Route</button></div>
+                <div id="tab-fleet" class="tab-panel active"><div id="fleet-list"></div><button id="btn-buy-plane" class="action-btn">Купить самолёт</button></div>
+                <div id="tab-routes" class="tab-panel"><div id="routes-list"></div><button id="btn-create-route" class="action-btn">Создать маршрут</button></div>
                 <div id="tab-contracts" class="tab-panel"><div id="contracts-list"></div></div>
                 <div id="tab-airports" class="tab-panel"><div id="airports-list"></div></div>
                 <div id="tab-economy" class="tab-panel"><div id="economy-stats"></div></div>
                 <div id="tab-achievements" class="tab-panel"><div id="achievements-list"></div></div>
                 <div id="tab-settings" class="tab-panel"><div id="settings-content">
-                    <button id="btn-save" class="action-btn">💾 Save Game</button>
-                    <button id="btn-load" class="action-btn">📂 Load Game</button>
-                    <button id="btn-reset" class="action-btn danger-btn">🔄 Reset Game</button>
-                    <button id="btn-export" class="action-btn">📤 Export Save</button>
-                    <button id="btn-import" class="action-btn">📥 Import Save</button>
+                    <button id="btn-save" class="action-btn">💾 Сохранить</button>
+                    <button id="btn-load" class="action-btn">📂 Загрузить</button>
+                    <button id="btn-reset" class="action-btn danger-btn">🔄 Сбросить</button>
+                    <button id="btn-export" class="action-btn">📤 Экспорт</button>
+                    <button id="btn-import" class="action-btn">📥 Импорт</button>
                     <input type="file" id="import-file" accept=".json" style="display:none;">
                 </div></div>
             </div>
@@ -151,13 +127,13 @@ html,body,#app{width:100%;height:100vh;overflow:hidden;font-family:var(--font);b
             </div>
         </div>
         <div id="info-panel">
-            <div id="selected-info"><h3>Details</h3><p id="detail-content">Click on a plane or airport for details.</p></div>
+            <div id="selected-info"><h3>Информация</h3><p id="detail-content">Нажмите на самолёт или аэропорт для подробностей.</p></div>
             <div id="notifications-container"></div>
         </div>
     </div>
     <div id="bottom-bar">
-        <div id="fleet-status">Fleet: 0 | Active: 0 | Income: $0/day</div>
-        <div id="weather-status">Weather: ☀ Clear</div>
+        <div id="fleet-status">Флот: 0 | В рейсе: 0 | Доход: $0/день</div>
+        <div id="weather-status">Погода: ☀ Ясно</div>
     </div>
 </div>
 <div id="modal-overlay" class="hidden"><div id="modal-content"></div></div>
@@ -165,174 +141,100 @@ html,body,#app{width:100%;height:100vh;overflow:hidden;font-family:var(--font);b
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // ============================================================
-// AIRLINE TYCOON SIMULATOR v1.0 — COMPLETE SINGLE-FILE GAME
+// AIRLINE TYCOON SIMULATOR v1.0 — ПОЛНАЯ РУССКАЯ ВЕРСИЯ
 // ============================================================
 
-// ==================== DATA ====================
 const AIRCRAFT_DATA = [
-    // SMALL
-    {id:"cessna_c172",name:"Cessna 172",class:"small",price:250000,speed:220,maxSpeed:302,capacity:4,cargo:500,fuelRate:35,tank:210,maxTank:210,range:1200,maintCost:50,type:"small"},
-    {id:"beech_b58",name:"Beechcraft Baron B58",class:"small",price:780000,speed:370,maxSpeed:430,capacity:6,cargo:800,fuelRate:62,tank:360,maxTank:360,range:2100,maintCost:90,type:"small"},
-    {id:"pilatus_pc12",name:"Pilatus PC-12 NG",class:"small",price:4400000,speed:500,maxSpeed:528,capacity:9,cargo:1200,fuelRate:80,tank:1500,maxTank:1500,range:3400,maintCost:150,type:"small"},
-    {id:"emb_145",name:"Embraer ERJ-145",class:"small",price:12000000,speed:760,maxSpeed:850,capacity:50,cargo:4500,fuelRate:220,tank:5100,maxTank:5100,range:3700,maintCost:400,type:"small"},
-    // MEDIUM
-    {id:"b737_800",name:"Boeing 737-800",class:"medium",price:90000000,speed:850,maxSpeed:946,capacity:189,cargo:20000,fuelRate:650,tank:26000,maxTank:26000,range:5400,maintCost:1800,type:"medium"},
-    {id:"a320neo",name:"Airbus A320neo",class:"medium",price:110000000,speed:830,maxSpeed:870,capacity:195,cargo:21000,fuelRate:580,tank:24000,maxTank:24000,range:6300,maintCost:1700,type:"medium"},
-    {id:"b757_200",name:"Boeing 757-200",class:"medium",price:80000000,speed:850,maxSpeed:980,capacity:239,cargo:28000,fuelRate:720,tank:43000,maxTank:43000,range:7200,maintCost:2000,type:"medium"},
-    // LARGE
-    {id:"b777_300er",name:"Boeing 777-300ER",class:"large",price:340000000,speed:905,maxSpeed:945,capacity:550,cargo:60000,fuelRate:1800,tank:181000,maxTank:181000,range:13650,maintCost:4500,type:"large"},
-    {id:"a350_900",name:"Airbus A350-900",class:"large",price:317000000,speed:910,maxSpeed:950,capacity:440,cargo:55000,fuelRate:1500,tank:141000,maxTank:141000,range:15000,maintCost:4200,type:"large"},
-    {id:"b747_8",name:"Boeing 747-8",class:"large",price:400000000,speed:915,maxSpeed:988,capacity:700,cargo:76000,fuelRate:2200,tank:238000,maxTank:238000,range:14300,maintCost:5500,type:"large"},
-    // CARGO
-    {id:"b767_300f",name:"Boeing 767-300F",class:"cargo",price:130000000,speed:850,maxSpeed:913,capacity:0,cargo:58000,fuelRate:900,tank:63000,maxTank:63000,range:6000,maintCost:2800,type:"cargo"},
-    {id:"b747_8f",name:"Boeing 747-8F",class:"heavy-cargo",price:380000000,speed:910,maxSpeed:988,capacity:0,cargo:140000,fuelRate:2100,tank:226000,maxTank:226000,range:14000,maintCost:5200,type:"heavy-cargo"}
+    {id:"cessna_c172",name:"Cessna 172 Skyhawk",class:"Малый",price:250000,speed:220,maxSpeed:302,capacity:4,cargo:500,fuelRate:35,tank:210,maxTank:210,range:1200,maintCost:50,type:"small"},
+    {id:"beech_b58",name:"Beechcraft Baron B58",class:"Малый",price:780000,speed:370,maxSpeed:430,capacity:6,cargo:800,fuelRate:62,tank:360,maxTank:360,range:2100,maintCost:90,type:"small"},
+    {id:"pilatus_pc12",name:"Pilatus PC-12 NG",class:"Малый",price:4400000,speed:500,maxSpeed:528,capacity:9,cargo:1200,fuelRate:80,tank:1500,maxTank:1500,range:3400,maintCost:150,type:"small"},
+    {id:"emb_145",name:"Embraer ERJ-145",class:"Малый",price:12000000,speed:760,maxSpeed:850,capacity:50,cargo:4500,fuelRate:220,tank:5100,maxTank:5100,range:3700,maintCost:400,type:"small"},
+    {id:"b737_800",name:"Boeing 737-800",class:"Средний",price:90000000,speed:850,maxSpeed:946,capacity:189,cargo:20000,fuelRate:650,tank:26000,maxTank:26000,range:5400,maintCost:1800,type:"medium"},
+    {id:"a320neo",name:"Airbus A320neo",class:"Средний",price:110000000,speed:830,maxSpeed:870,capacity:195,cargo:21000,fuelRate:580,tank:24000,maxTank:24000,range:6300,maintCost:1700,type:"medium"},
+    {id:"b757_200",name:"Boeing 757-200",class:"Средний",price:80000000,speed:850,maxSpeed:980,capacity:239,cargo:28000,fuelRate:720,tank:43000,maxTank:43000,range:7200,maintCost:2000,type:"medium"},
+    {id:"b777_300er",name:"Boeing 777-300ER",class:"Большой",price:340000000,speed:905,maxSpeed:945,capacity:550,cargo:60000,fuelRate:1800,tank:181000,maxTank:181000,range:13650,maintCost:4500,type:"large"},
+    {id:"a350_900",name:"Airbus A350-900",class:"Большой",price:317000000,speed:910,maxSpeed:950,capacity:440,cargo:55000,fuelRate:1500,tank:141000,maxTank:141000,range:15000,maintCost:4200,type:"large"},
+    {id:"b747_8",name:"Boeing 747-8 Intercontinental",class:"Большой",price:400000000,speed:915,maxSpeed:988,capacity:700,cargo:76000,fuelRate:2200,tank:238000,maxTank:238000,range:14300,maintCost:5500,type:"large"},
+    {id:"b767_300f",name:"Boeing 767-300F",class:"Грузовой",price:130000000,speed:850,maxSpeed:913,capacity:0,cargo:58000,fuelRate:900,tank:63000,maxTank:63000,range:6000,maintCost:2800,type:"cargo"},
+    {id:"b747_8f",name:"Boeing 747-8F",class:"Тяжёлый грузовой",price:380000000,speed:910,maxSpeed:988,capacity:0,cargo:140000,fuelRate:2100,tank:226000,maxTank:226000,range:14000,maintCost:5200,type:"heavy-cargo"}
 ];
 
 const AIRPORTS_DATA = [
-    {code:"JFK",name:"John F Kennedy Intl",city:"New York",country:"USA",lat:40.6413,lng:-73.7781,hub:true,level:5,fees:3500,slots:200},
-    {code:"LAX",name:"Los Angeles Intl",city:"Los Angeles",country:"USA",lat:33.9416,lng:-118.4085,hub:true,level:4,fees:3000,slots:180},
-    {code:"LHR",name:"London Heathrow",city:"London",country:"UK",lat:51.4700,lng:-0.4543,hub:true,level:5,fees:4000,slots:220},
-    {code:"CDG",name:"Charles de Gaulle",city:"Paris",country:"France",lat:49.0097,lng:2.5479,hub:true,level:4,fees:3200,slots:190},
-    {code:"DXB",name:"Dubai Intl",city:"Dubai",country:"UAE",lat:25.2532,lng:55.3657,hub:true,level:5,fees:2800,slots:200},
-    {code:"HND",name:"Tokyo Haneda",city:"Tokyo",country:"Japan",lat:35.5533,lng:139.7812,hub:true,level:5,fees:3800,slots:210},
-    {code:"SIN",name:"Singapore Changi",city:"Singapore",country:"Singapore",lat:1.3644,lng:103.9915,hub:true,level:4,fees:3000,slots:180},
-    {code:"SYD",name:"Sydney Kingsford Smith",city:"Sydney",country:"Australia",lat:-33.9399,lng:151.1753,hub:false,level:3,fees:2500,slots:120},
-    {code:"FRA",name:"Frankfurt Airport",city:"Frankfurt",country:"Germany",lat:50.0379,lng:8.5622,hub:true,level:4,fees:3400,slots:190},
-    {code:"IST",name:"Istanbul Airport",city:"Istanbul",country:"Turkey",lat:41.2753,lng:28.7519,hub:false,level:3,fees:2200,slots:150},
-    {code:"MEX",name:"Mexico City Intl",city:"Mexico City",country:"Mexico",lat:19.4361,lng:-99.0719,hub:false,level:3,fees:2000,slots:130},
-    {code:"GRU",name:"Sao Paulo Guarulhos",city:"Sao Paulo",country:"Brazil",lat:-23.4356,lng:-46.4731,hub:false,level:3,fees:2100,slots:140},
-    {code:"JNB",name:"OR Tambo Intl",city:"Johannesburg",country:"South Africa",lat:-26.1367,lng:28.2416,hub:false,level:2,fees:1800,slots:100},
-    {code:"BOM",name:"Chhatrapati Shivaji",city:"Mumbai",country:"India",lat:19.0896,lng:72.8656,hub:false,level:3,fees:1900,slots:130},
-    {code:"PEK",name:"Beijing Capital",city:"Beijing",country:"China",lat:40.0799,lng:116.6031,hub:true,level:4,fees:2900,slots:200},
-    {code:"SVO",name:"Sheremetyevo Intl",city:"Moscow",country:"Russia",lat:55.9736,lng:37.4125,hub:false,level:3,fees:2100,slots:140},
-    {code:"YYZ",name:"Toronto Pearson",city:"Toronto",country:"Canada",lat:43.6777,lng:-79.6248,hub:false,level:3,fees:2600,slots:130},
-    {code:"MIA",name:"Miami Intl",city:"Miami",country:"USA",lat:25.7959,lng:-80.2871,hub:false,level:3,fees:2400,slots:140},
-    {code:"AMS",name:"Amsterdam Schiphol",city:"Amsterdam",country:"Netherlands",lat:52.3105,lng:4.7683,hub:false,level:4,fees:3300,slots:170},
-    {code:"ICN",name:"Seoul Incheon",city:"Seoul",country:"South Korea",lat:37.4602,lng:126.4407,hub:false,level:4,fees:2800,slots:160}
+    {code:"JFK",name:"Международный аэропорт им. Джона Кеннеди",city:"Нью-Йорк",country:"США",lat:40.6413,lng:-73.7781,hub:true,level:5,fees:3500,slots:200},
+    {code:"LAX",name:"Международный аэропорт Лос-Анджелеса",city:"Лос-Анджелес",country:"США",lat:33.9416,lng:-118.4085,hub:true,level:4,fees:3000,slots:180},
+    {code:"LHR",name:"Хитроу",city:"Лондон",country:"Великобритания",lat:51.4700,lng:-0.4543,hub:true,level:5,fees:4000,slots:220},
+    {code:"CDG",name:"Шарль-де-Голль",city:"Париж",country:"Франция",lat:49.0097,lng:2.5479,hub:true,level:4,fees:3200,slots:190},
+    {code:"DXB",name:"Международный аэропорт Дубая",city:"Дубай",country:"ОАЭ",lat:25.2532,lng:55.3657,hub:true,level:5,fees:2800,slots:200},
+    {code:"HND",name:"Ханеда",city:"Токио",country:"Япония",lat:35.5533,lng:139.7812,hub:true,level:5,fees:3800,slots:210},
+    {code:"SIN",name:"Чанги",city:"Сингапур",country:"Сингапур",lat:1.3644,lng:103.9915,hub:true,level:4,fees:3000,slots:180},
+    {code:"SYD",name:"Кингсфорд-Смит",city:"Сидней",country:"Австралия",lat:-33.9399,lng:151.1753,hub:false,level:3,fees:2500,slots:120},
+    {code:"FRA",name:"Франкфурт-на-Майне",city:"Франкфурт",country:"Германия",lat:50.0379,lng:8.5622,hub:true,level:4,fees:3400,slots:190},
+    {code:"IST",name:"Новый аэропорт Стамбула",city:"Стамбул",country:"Турция",lat:41.2753,lng:28.7519,hub:false,level:3,fees:2200,slots:150},
+    {code:"MEX",name:"Международный аэропорт Мехико",city:"Мехико",country:"Мексика",lat:19.4361,lng:-99.0719,hub:false,level:3,fees:2000,slots:130},
+    {code:"GRU",name:"Гуарульюс",city:"Сан-Паулу",country:"Бразилия",lat:-23.4356,lng:-46.4731,hub:false,level:3,fees:2100,slots:140},
+    {code:"JNB",name:"Тамбо",city:"Йоханнесбург",country:"ЮАР",lat:-26.1367,lng:28.2416,hub:false,level:2,fees:1800,slots:100},
+    {code:"BOM",name:"Международный аэропорт Мумбаи",city:"Мумбаи",country:"Индия",lat:19.0896,lng:72.8656,hub:false,level:3,fees:1900,slots:130},
+    {code:"PEK",name:"Шоуду",city:"Пекин",country:"Китай",lat:40.0799,lng:116.6031,hub:true,level:4,fees:2900,slots:200},
+    {code:"SVO",name:"Шереметьево",city:"Москва",country:"Россия",lat:55.9736,lng:37.4125,hub:true,level:4,fees:2100,slots:180},
+    {code:"YYZ",name:"Пирсон",city:"Торонто",country:"Канада",lat:43.6777,lng:-79.6248,hub:false,level:3,fees:2600,slots:130},
+    {code:"MIA",name:"Международный аэропорт Майами",city:"Майами",country:"США",lat:25.7959,lng:-80.2871,hub:false,level:3,fees:2400,slots:140},
+    {code:"AMS",name:"Схипхол",city:"Амстердам",country:"Нидерланды",lat:52.3105,lng:4.7683,hub:false,level:4,fees:3300,slots:170},
+    {code:"ICN",name:"Инчхон",city:"Сеул",country:"Южная Корея",lat:37.4602,lng:126.4407,hub:false,level:4,fees:2800,slots:160}
 ];
 
 const CONTRACT_TEMPLATES = [
-    {id:"c001",name:"Express Document Delivery",rarity:"common",baseValue:5000,weight:5,deadlineDays:1,bonusPercent:10,penaltyPercent:25},
-    {id:"c002",name:"Medical Supplies",rarity:"common",baseValue:8000,weight:200,deadlineDays:2,bonusPercent:15,penaltyPercent:20},
-    {id:"c003",name:"Electronics Shipment",rarity:"common",baseValue:15000,weight:800,deadlineDays:3,bonusPercent:12,penaltyPercent:18},
-    {id:"c004",name:"Perishable Foods",rarity:"uncommon",baseValue:22000,weight:1500,deadlineDays:1,bonusPercent:25,penaltyPercent:40},
-    {id:"c005",name:"Automotive Parts",rarity:"uncommon",baseValue:35000,weight:4000,deadlineDays:4,bonusPercent:18,penaltyPercent:15},
-    {id:"c006",name:"Luxury Goods",rarity:"rare",baseValue:80000,weight:600,deadlineDays:2,bonusPercent:35,penaltyPercent:30},
-    {id:"c007",name:"Pharmaceuticals",rarity:"rare",baseValue:65000,weight:1200,deadlineDays:3,bonusPercent:30,penaltyPercent:25},
-    {id:"c008",name:"Heavy Machinery",rarity:"rare",baseValue:120000,weight:12000,deadlineDays:5,bonusPercent:20,penaltyPercent:15},
-    {id:"c009",name:"VIP Charter Cargo",rarity:"legendary",baseValue:250000,weight:300,deadlineDays:1,bonusPercent:50,penaltyPercent:50},
-    {id:"c010",name:"Gold & Valuables",rarity:"legendary",baseValue:500000,weight:50,deadlineDays:1,bonusPercent:60,penaltyPercent:70}
+    {id:"c001",name:"Срочная доставка документов",rarity:"обычный",baseValue:5000,weight:5,deadlineDays:1,bonusPercent:10,penaltyPercent:25},
+    {id:"c002",name:"Медицинское оборудование",rarity:"обычный",baseValue:8000,weight:200,deadlineDays:2,bonusPercent:15,penaltyPercent:20},
+    {id:"c003",name:"Партия электроники",rarity:"обычный",baseValue:15000,weight:800,deadlineDays:3,bonusPercent:12,penaltyPercent:18},
+    {id:"c004",name:"Скоропортящиеся продукты",rarity:"необычный",baseValue:22000,weight:1500,deadlineDays:1,bonusPercent:25,penaltyPercent:40},
+    {id:"c005",name:"Автомобильные запчасти",rarity:"необычный",baseValue:35000,weight:4000,deadlineDays:4,bonusPercent:18,penaltyPercent:15},
+    {id:"c006",name:"Предметы роскоши",rarity:"редкий",baseValue:80000,weight:600,deadlineDays:2,bonusPercent:35,penaltyPercent:30},
+    {id:"c007",name:"Фармацевтические препараты",rarity:"редкий",baseValue:65000,weight:1200,deadlineDays:3,bonusPercent:30,penaltyPercent:25},
+    {id:"c008",name:"Тяжёлое оборудование",rarity:"редкий",baseValue:120000,weight:12000,deadlineDays:5,bonusPercent:20,penaltyPercent:15},
+    {id:"c009",name:"VIP-чартерный груз",rarity:"легендарный",baseValue:250000,weight:300,deadlineDays:1,bonusPercent:50,penaltyPercent:50},
+    {id:"c010",name:"Золото и ценности",rarity:"легендарный",baseValue:500000,weight:50,deadlineDays:1,bonusPercent:60,penaltyPercent:70}
 ];
 
-// ==================== UTILITY FUNCTIONS ====================
+const WEATHER_ICONS = {clear:'☀ Ясно',cloudy:'☁ Облачно',rain:'🌧 Дождь',fog:'🌫 Туман',storm:'⛈ Гроза',snow:'❄ Снег'};
+const MONTHS_RU = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+const STATUS_RU = {idle:'На стоянке',loading:'Загрузка',flying:'В рейсе',landing:'Посадка',maintenance:'Обслуживание',repair:'Ремонт',broken:'Сломан'};
+
 function randomInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function randomFloat(min,max){return Math.random()*(max-min)+min;}
 function clamp(val,min,max){return Math.max(min,Math.min(max,val));}
-function formatMoney(amount){return '$'+amount.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});}
+function formatMoney(amount){return '$' + amount.toLocaleString('ru-RU',{minimumFractionDigits:0,maximumFractionDigits:0});}
 function distanceLatLng(lat1,lng1,lat2,lng2){const R=6371;const dLat=(lat2-lat1)*Math.PI/180;const dLng=(lng2-lng1)*Math.PI/180;const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function generateId(){return 'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);}
 function lerp(a,b,t){return a+(b-a)*t;}
 
-// ==================== GAME STATE ====================
 class GameState {
-    constructor(){
-        this.reset();
-    }
+    constructor(){this.reset();}
     reset(){
-        this.gameTime=0;
-        this.speed=1;
-        this.paused=false;
-        this.day=1;
-        this.month=1;
-        this.year=1;
-        this.hour=8;
-        this.minute=0;
-        this.money=1000000;
-        this.reputation=50;
-        this.airlineName='My Airline';
-        this.totalFlights=0;
-        this.totalPassengers=0;
-        this.totalCargo=0;
-        this.fleet=[];
-        this.routes=[];
-        this.activeContracts=[];
-        this.availableContracts=[];
-        this.weather='clear';
-        this.economyState={inflation:2, fuelPrice:1.8, demand:1.0, crisis:false, season:'normal'};
-        this.achievements=[];
-        this.statistics={dailyIncome:[],dailyExpenses:[],flightsCompleted:0,contractsCompleted:0,totalEarned:0,totalSpent:0};
+        this.gameTime=0;this.speed=1;this.paused=false;this.day=1;this.month=1;this.year=1;
+        this.hour=8;this.minute=0;this.money=1000000;this.reputation=50;this.airlineName='Моя Авиакомпания';
+        this.totalFlights=0;this.totalPassengers=0;this.totalCargo=0;this.fleet=[];this.routes=[];
+        this.activeContracts=[];this.availableContracts=[];this.weather='clear';
+        this.economyState={inflation:2,fuelPrice:1.8,demand:1.0,crisis:false,season:'normal'};
+        this.achievements=[];this.statistics={dailyIncome:[],dailyExpenses:[],flightsCompleted:0,contractsCompleted:0,totalEarned:0,totalSpent:0};
         this.airports=AIRPORTS_DATA.map(a=>({...a,owned:false,upgradeLevel:a.hub?2:1}));
     }
     toJSON(){return JSON.parse(JSON.stringify({gameTime:this.gameTime,speed:this.speed,day:this.day,month:this.month,year:this.year,hour:this.hour,minute:this.minute,money:this.money,reputation:this.reputation,airlineName:this.airlineName,totalFlights:this.totalFlights,totalPassengers:this.totalPassengers,totalCargo:this.totalCargo,fleet:this.fleet,routes:this.routes,activeContracts:this.activeContracts,availableContracts:this.availableContracts,weather:this.weather,economyState:this.economyState,achievements:this.achievements,statistics:this.statistics,airports:this.airports}));}
-    fromJSON(json){
-        Object.assign(this,json);
-        if(!this.economyState)this.economyState={inflation:2,fuelPrice:1.8,demand:1.0,crisis:false,season:'normal'};
-        if(!this.achievements)this.achievements=[];
-        if(!this.statistics)this.statistics={dailyIncome:[],dailyExpenses:[],flightsCompleted:0,contractsCompleted:0,totalEarned:0,totalSpent:0};
-        if(!this.airports)this.airports=AIRPORTS_DATA.map(a=>({...a,owned:false,upgradeLevel:a.hub?2:1}));
-        if(!this.fleet)this.fleet=[];
-        if(!this.routes)this.routes=[];
-        if(!this.activeContracts)this.activeContracts=[];
-        if(!this.availableContracts)this.availableContracts=[];
-    }
+    fromJSON(json){Object.assign(this,json);if(!this.economyState)this.economyState={inflation:2,fuelPrice:1.8,demand:1.0,crisis:false,season:'normal'};if(!this.achievements)this.achievements=[];if(!this.statistics)this.statistics={dailyIncome:[],dailyExpenses:[],flightsCompleted:0,contractsCompleted:0,totalEarned:0,totalSpent:0};if(!this.airports)this.airports=AIRPORTS_DATA.map(a=>({...a,owned:false,upgradeLevel:a.hub?2:1}));if(!this.fleet)this.fleet=[];if(!this.routes)this.routes=[];if(!this.activeContracts)this.activeContracts=[];if(!this.availableContracts)this.availableContracts=[];}
 }
 
-// ==================== SAVE ENGINE ====================
 const SaveEngine = {
-    saveKey:'airline_tycoon_save_v1',
-    save(state){
-        try{
-            const data=state.toJSON();
-            localStorage.setItem(this.saveKey,JSON.stringify(data));
-            return true;
-        }catch(e){console.error('Save failed:',e);return false;}
-    },
-    load(){
-        try{
-            const raw=localStorage.getItem(this.saveKey);
-            if(!raw)return null;
-            return JSON.parse(raw);
-        }catch(e){return null;}
-    },
-    exportSave(state){
-        const data=state.toJSON();
-        const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-        const url=URL.createObjectURL(blob);
-        const a=document.createElement('a');
-        a.href=url;a.download='airline_tycoon_save.json';
-        a.click();
-        URL.revokeObjectURL(url);
-    },
-    importSave(file,callback){
-        const reader=new FileReader();
-        reader.onload=(e)=>{
-            try{
-                const data=JSON.parse(e.target.result);
-                callback(data);
-            }catch(err){callback(null);}
-        };
-        reader.readAsText(file);
-    },
+    saveKey:'airline_tycoon_save_v2_ru',
+    save(state){try{localStorage.setItem(this.saveKey,JSON.stringify(state.toJSON()));return true;}catch(e){return false;}},
+    load(){try{const raw=localStorage.getItem(this.saveKey);return raw?JSON.parse(raw):null;}catch(e){return null;}},
+    exportSave(state){const data=state.toJSON();const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='aviamagnat_save.json';a.click();URL.revokeObjectURL(url);},
+    importSave(file,callback){const reader=new FileReader();reader.onload=(e)=>{try{callback(JSON.parse(e.target.result));}catch(err){callback(null);}};reader.readAsText(file);},
     deleteSave(){localStorage.removeItem(this.saveKey);}
 };
 
-// ==================== AUDIO ENGINE ====================
 const AudioEngine = {
     ctx:null,
-    init(){
-        try{this.ctx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){this.ctx=null;}
-    },
-    playTone(freq,dur,type='square',vol=0.05){
-        if(!this.ctx)return;
-        const osc=this.ctx.createOscillator();
-        const gain=this.ctx.createGain();
-        osc.type=type;
-        osc.frequency.value=freq;
-        gain.gain.setValueAtTime(vol,this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001,this.ctx.currentTime+dur);
-        osc.connect(gain);gain.connect(this.ctx.destination);
-        osc.start();osc.stop(this.ctx.currentTime+dur);
-    },
+    init(){try{this.ctx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){this.ctx=null;}},
+    playTone(freq,dur,type='square',vol=0.05){if(!this.ctx)return;const osc=this.ctx.createOscillator();const gain=this.ctx.createGain();osc.type=type;osc.frequency.value=freq;gain.gain.setValueAtTime(vol,this.ctx.currentTime);gain.gain.exponentialRampToValueAtTime(0.001,this.ctx.currentTime+dur);osc.connect(gain);gain.connect(this.ctx.destination);osc.start();osc.stop(this.ctx.currentTime+dur);},
     click(){this.playTone(800,0.08,'square',0.03);},
     buy(){this.playTone(1200,0.15,'square',0.05);this.playTone(1600,0.1,'square',0.04);},
     money(){this.playTone(600,0.1,'triangle',0.06);setTimeout(()=>this.playTone(900,0.1,'triangle',0.06),100);},
@@ -341,45 +243,24 @@ const AudioEngine = {
     success(){this.playTone(523,0.12,'sine',0.05);setTimeout(()=>this.playTone(659,0.12,'sine',0.05),120);setTimeout(()=>this.playTone(784,0.15,'sine',0.05),240);}
 };
 
-// ==================== MAIN GAME ENGINE ====================
 class AirlineTycoonGame {
     constructor(){
-        this.state=new GameState();
-        this.lastTick=Date.now();
-        this.gameLoopId=null;
-        this.map=null;
-        this.mapInitialized=false;
-        this.planeMarkers={};
-        this.airportMarkers={};
-        this.routeLines={};
-        this.animLayer=null;
-        this.planeAnimations={};
-        this.selectedObject=null;
-        this.eventsHistory=[];
-        this.dayProcessed=false;
+        this.state=new GameState();this.lastTick=Date.now();this.gameLoopId=null;
+        this.map=null;this.mapInitialized=false;this.planeMarkers={};this.airportMarkers={};
+        this.routeLines={};this.animLayer=null;this.selectedObject=null;this.dayProcessed=false;
     }
-
-    // ============ INITIALIZATION ============
     async init(){
         AudioEngine.init();
-        this.loadGame();
+        const saved=SaveEngine.load();
+        if(saved){this.state.fromJSON(saved);console.log('Игра загружена из сохранения.');}
         this.initMap();
         this.bindUI();
         this.generateContracts();
         this.startLoop();
         this.updateAllUI();
-        this.addNotification('🛫 Welcome to Airline Tycoon Simulator! Buy your first aircraft to begin.','success');
-        console.log('✅ Airline Tycoon Simulator v1.0 Ready');
+        this.addNotification('🛫 Добро пожаловать в АвиаМагнат! Купите свой первый самолёт, чтобы начать.','success');
+        console.log('✅ АвиаМагнат v1.0 готов к работе');
     }
-
-    loadGame(){
-        const saved=SaveEngine.load();
-        if(saved){
-            this.state.fromJSON(saved);
-            console.log('Game loaded from save.');
-        }
-    }
-
     initMap(){
         this.map=L.map('map',{center:[30,10],zoom:3,zoomControl:false,attributionControl:false,preferCanvas:true,worldCopyJump:false,maxBounds:[[-85,-180],[85,180]],maxBoundsViscosity:0.8});
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:12,minZoom:2,noWrap:true,attribution:'&copy; OpenStreetMap'}).addTo(this.map);
@@ -389,51 +270,31 @@ class AirlineTycoonGame {
         this.animLayer=L.layerGroup().addTo(this.map);
         this.placeAirportMarkers();
         this.map.on('click',(e)=>this.handleMapClick(e));
-        this.map.whenReady(()=>{
-            this.mapInitialized=true;
-            this.restoreVisuals();
-        });
+        this.map.whenReady(()=>{this.mapInitialized=true;this.restoreVisuals();});
     }
-
     placeAirportMarkers(){
         this.state.airports.forEach(a=>{
-            const icon=this.createAirportIcon(a);
-            const marker=L.marker([a.lat,a.lng],{icon,pane:'markerPane'}).bindTooltip(a.code+' - '+a.city,{direction:'top'});
+            const sz=a.hub?14:9;const col=a.hub?'#27ae60':'#ecf0f1';
+            const svg=`<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg"><circle cx="${sz/2}" cy="${sz/2}" r="${sz/2}" fill="${col}"/><circle cx="${sz/2}" cy="${sz/2}" r="${sz/4}" fill="#2c3e50"/></svg>`;
+            const icon=L.icon({iconUrl:'data:image/svg+xml,'+encodeURIComponent(svg),iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
+            const marker=L.marker([a.lat,a.lng],{icon,pane:'markerPane'}).bindTooltip(a.code+' — '+a.city,{direction:'top'});
             marker.on('click',()=>this.selectAirport(a));
             marker.addTo(this.map);
             this.airportMarkers[a.code]=marker;
         });
     }
-
-    createAirportIcon(airport){
-        const sz=airport.hub?14:9;
-        const col=airport.hub?'#27ae60':'#ecf0f1';
-        const svg=`<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg"><circle cx="${sz/2}" cy="${sz/2}" r="${sz/2}" fill="${col}"/><circle cx="${sz/2}" cy="${sz/2}" r="${sz/4}" fill="#2c3e50"/></svg>`;
-        return L.icon({iconUrl:'data:image/svg+xml,'+encodeURIComponent(svg),iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
-    }
-
     createPlaneMarker(plane,pos){
-        const sz=this.planeIconSize(plane);
-        const rot=pos.heading||0;
-        const col=plane.color||'#27ae60';
+        const sz={small:13,medium:17,large:21,cargo:19,'heavy-cargo':23,military:18}[plane.type]||15;
+        const rot=pos.heading||0;const col=plane.color||'#27ae60';
         const svg=`<svg width="${sz}" height="${sz}" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(${rot},${sz/2},${sz/2})"><polygon points="${sz/2},2 ${sz-2},${sz/2} ${sz/2},${sz-2} 2,${sz/2}" fill="${col}" stroke="#fff" stroke-width="0.8"/></g></svg>`;
         const icon=L.icon({iconUrl:'data:image/svg+xml,'+encodeURIComponent(svg),iconSize:[sz,sz],iconAnchor:[sz/2,sz/2],className:'plane-icon'});
         return L.marker([pos.lat,pos.lng],{icon,pane:'animPane',zIndexOffset:1000});
     }
-
-    planeIconSize(plane){
-        const s={small:13,medium:17,large:21,cargo:19,'heavy-cargo':23,military:18};
-        return s[plane.type]||15;
-    }
-
     restoreVisuals(){
-        // Restore route lines
         this.state.routes.forEach(r=>{
-            const from=this.getAirport(r.fromCode);
-            const to=this.getAirport(r.toCode);
+            const from=this.getAirport(r.fromCode);const to=this.getAirport(r.toCode);
             if(from&&to)this.drawRouteLine(from,to,r.color||'#3498db');
         });
-        // Restore plane markers for active flights
         this.state.fleet.forEach(p=>{
             if(p.state==='flying'&&p.currentFlight){
                 const pos=p.animationPos||this.getAirportPos(p.currentFlight.fromCode);
@@ -441,27 +302,21 @@ class AirlineTycoonGame {
             }
         });
     }
-
-    // ============ UI BINDING ============
     bindUI(){
-        // Tabs
         document.querySelectorAll('.tab-btn').forEach(btn=>{
             btn.addEventListener('click',()=>{
                 document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
                 btn.classList.add('active');
                 document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-                const tabId='tab-'+btn.dataset.tab;
-                document.getElementById(tabId)?.classList.add('active');
+                document.getElementById('tab-'+btn.dataset.tab)?.classList.add('active');
                 this.updateTabContent(btn.dataset.tab);
             });
         });
-        // Speed buttons
         document.getElementById('btn-speed-1x').addEventListener('click',()=>this.setSpeed(1));
         document.getElementById('btn-speed-2x').addEventListener('click',()=>this.setSpeed(2));
         document.getElementById('btn-speed-5x').addEventListener('click',()=>this.setSpeed(5));
         document.getElementById('btn-speed-10x').addEventListener('click',()=>this.setSpeed(10));
         document.getElementById('btn-pause').addEventListener('click',()=>this.togglePause());
-        // Action buttons
         document.getElementById('btn-buy-plane').addEventListener('click',()=>this.openBuyPlaneModal());
         document.getElementById('btn-create-route').addEventListener('click',()=>this.openCreateRouteModal());
         document.getElementById('btn-save').addEventListener('click',()=>this.saveGame());
@@ -470,12 +325,8 @@ class AirlineTycoonGame {
         document.getElementById('btn-export').addEventListener('click',()=>SaveEngine.exportSave(this.state));
         document.getElementById('btn-import').addEventListener('click',()=>document.getElementById('import-file').click());
         document.getElementById('import-file').addEventListener('change',(e)=>this.importSaveFile(e.target.files[0]));
-        // Modal overlay
-        document.getElementById('modal-overlay').addEventListener('click',(e)=>{
-            if(e.target===document.getElementById('modal-overlay'))this.closeModal();
-        });
+        document.getElementById('modal-overlay').addEventListener('click',(e)=>{if(e.target===document.getElementById('modal-overlay'))this.closeModal();});
     }
-
     updateTabContent(tab){
         switch(tab){
             case 'fleet':this.renderFleetTab();break;
@@ -484,11 +335,8 @@ class AirlineTycoonGame {
             case 'airports':this.renderAirportsTab();break;
             case 'economy':this.renderEconomyTab();break;
             case 'achievements':this.renderAchievementsTab();break;
-            case 'settings':break;
         }
     }
-
-    // ============ GAME LOOP ============
     startLoop(){
         const tick=()=>{
             const now=Date.now();
@@ -507,59 +355,40 @@ class AirlineTycoonGame {
         };
         this.gameLoopId=requestAnimationFrame(tick);
     }
-
     advanceTime(deltaMin){
-        this.state.gameTime+=deltaMin;
-        this.state.minute+=deltaMin;
+        this.state.gameTime+=deltaMin;this.state.minute+=deltaMin;
         while(this.state.minute>=60){this.state.minute-=60;this.state.hour++;}
         while(this.state.hour>=24){this.state.hour-=24;this.state.day++;this.onNewDay();}
         const dim=this.daysInMonth(this.state.month,this.state.year);
         while(this.state.day>dim){this.state.day-=dim;this.state.month++;if(this.state.month>12){this.state.month=1;this.state.year++;}this.onNewMonth();}
     }
-
     daysInMonth(m,y){return new Date(y+2024,m,0).getDate();}
-
     onNewDay(){
         this.dayProcessed=false;
-        this.state.statistics.dailyIncome.push(0);
-        this.state.statistics.dailyExpenses.push(0);
+        this.state.statistics.dailyIncome.push(0);this.state.statistics.dailyExpenses.push(0);
         if(this.state.statistics.dailyIncome.length>365)this.state.statistics.dailyIncome.shift();
         if(this.state.statistics.dailyExpenses.length>365)this.state.statistics.dailyExpenses.shift();
-        this.generateContracts();
-        this.updateEconomy();
-        this.updateWeather();
-        this.payDailyExpenses();
-        this.updateAIActivity();
-        this.checkAchievements();
+        this.generateContracts();this.updateEconomy();this.updateWeather();
+        this.payDailyExpenses();this.updateAIActivity();this.checkAchievements();
     }
-
     onNewMonth(){this.updateEconomy();}
+    processDayTick(){if(!this.dayProcessed&&this.state.hour>=8)this.dayProcessed=true;}
 
-    processDayTick(){
-        if(!this.dayProcessed&&this.state.hour>=8){
-            this.dayProcessed=true;
-        }
-    }
-
-    // ============ ECONOMY ============
     updateEconomy(){
         this.state.economyState.inflation=clamp(this.state.economyState.inflation+randomFloat(-0.3,0.3),0.5,8);
         this.state.economyState.fuelPrice=clamp(1.5+randomFloat(-0.3,0.3)+this.state.economyState.inflation*0.2,0.8,6);
         this.state.economyState.demand=clamp(0.7+randomFloat(-0.2,0.2),0.3,2.5);
         if(Math.random()<0.03)this.state.economyState.crisis=!this.state.economyState.crisis;
         const m=this.state.month;
-        if(m>=6&&m<=8)this.state.economyState.season='summer';
-        else if(m>=12||m<=2)this.state.economyState.season='winter';
-        else this.state.economyState.season='normal';
+        if(m>=6&&m<=8)this.state.economyState.season='лето';
+        else if(m>=12||m<=2)this.state.economyState.season='зима';
+        else this.state.economyState.season='обычный';
     }
-
     updateWeather(){
-        const r=Math.random();
         const w=['clear','clear','clear','cloudy','cloudy','rain','rain','fog','storm'];
         this.state.weather=w[Math.floor(Math.random()*w.length)];
-        if(this.state.economyState.season==='winter'&&Math.random()<0.3)this.state.weather='snow';
+        if(this.state.economyState.season==='зима'&&Math.random()<0.3)this.state.weather='snow';
     }
-
     payDailyExpenses(){
         let total=0;
         this.state.fleet.forEach(p=>{
@@ -571,81 +400,53 @@ class AirlineTycoonGame {
         });
         total+=this.state.fleet.length*200;
         total=Math.round(total*(1+this.state.economyState.inflation/100));
-        if(this.state.money>=total)this.state.money-=total;
-        else this.state.money=Math.max(0,this.state.money);
+        if(this.state.money>=total)this.state.money-=total;else this.state.money=Math.max(0,this.state.money);
         this.state.statistics.totalSpent+=total;
         if(this.state.statistics.dailyExpenses.length>0)
             this.state.statistics.dailyExpenses[this.state.statistics.dailyExpenses.length-1]+=total;
     }
 
-    // ============ FLIGHTS ============
     updateFlights(deltaMin){
         this.state.fleet.forEach(plane=>{
             if(plane.state==='flying'&&plane.currentFlight){
                 const flight=plane.currentFlight;
                 flight.progress+=deltaMin/flight.durationMin;
-                if(flight.progress>=1){
-                    flight.progress=1;
-                    this.completeFlight(plane);
-                }
+                if(flight.progress>=1){flight.progress=1;this.completeFlight(plane);}
             }
         });
     }
-
     completeFlight(plane){
         const flight=plane.currentFlight;
         const route=this.state.routes.find(r=>r.id===flight.routeId);
-        plane.state='idle';
-        plane.currentFlight=null;
+        plane.state='idle';plane.currentFlight=null;
         plane.position=this.getAirportPos(flight.toCode);
-        // Income
         let income=route?route.income:5000;
-        income*=this.state.economyState.demand;
-        income*=this.state.reputation/50;
+        income*=this.state.economyState.demand*this.state.reputation/50;
         income=Math.round(income*(1+randomFloat(-0.1,0.1)));
         if(flight.contractId){
             const contract=this.state.activeContracts.find(c=>c.id===flight.contractId);
             if(contract){
-                if(flight.progress<=1.05){
-                    income+=contract.payout;
-                    this.state.statistics.contractsCompleted++;
-                    this.state.activeContracts=this.state.activeContracts.filter(c=>c.id!==contract.id);
-                    this.addNotification(`✅ Contract completed: +${formatMoney(contract.payout)}`,'success');
-                }else{
-                    const penalty=Math.round(contract.payout*contract.penaltyPercent/100);
-                    income-=penalty;
-                    this.state.activeContracts=this.state.activeContracts.filter(c=>c.id!==contract.id);
-                    this.addNotification(`⚠ Contract late! Penalty: -${formatMoney(penalty)}`,'warning');
-                }
+                income+=contract.payout;
+                this.state.statistics.contractsCompleted++;
+                this.state.activeContracts=this.state.activeContracts.filter(c=>c.id!==contract.id);
+                this.addNotification(`✅ Контракт выполнен: +${formatMoney(contract.payout)}`,'success');
             }
         }
         this.state.money+=Math.max(0,income);
-        this.state.totalFlights++;
-        this.state.statistics.flightsCompleted++;
+        this.state.totalFlights++;this.state.statistics.flightsCompleted++;
         this.state.statistics.totalEarned+=income;
         if(this.state.statistics.dailyIncome.length>0)
             this.state.statistics.dailyIncome[this.state.statistics.dailyIncome.length-1]+=income;
         this.state.reputation=clamp(this.state.reputation+0.5,0,100);
         this.removePlaneFromMap(plane.id);
-        // Color route line as completed
-        if(flight.routeId){
-            const route=this.state.routes.find(r=>r.id===flight.routeId);
-            if(route&&this.routeLines[route.id]){
-                this.routeLines[route.id].setStyle({color:'#27ae60',opacity:0.3});
-            }
-        }
-        // Auto-restart route after cooldown
-        if(route){
-            setTimeout(()=>this.startFlightOnRoute(plane,route),5000/this.state.speed);
-        }
-        this.addNotification(`🛬 ${plane.name} landed at ${flight.toCode}. Income: ${formatMoney(Math.max(0,income))}`,'success');
+        if(route&&this.routeLines[route.id])this.routeLines[route.id].setStyle({color:'#27ae60',opacity:0.3});
+        if(route)setTimeout(()=>this.startFlightOnRoute(plane,route),5000/this.state.speed);
+        this.addNotification(`🛬 ${plane.name} приземлился в ${flight.toCode}. Доход: ${formatMoney(Math.max(0,income))}`,'success');
         AudioEngine.money();
     }
-
     startFlightOnRoute(plane,route){
         if(plane.state!=='idle')return;
-        const from=this.getAirport(route.fromCode);
-        const to=this.getAirport(route.toCode);
+        const from=this.getAirport(route.fromCode);const to=this.getAirport(route.toCode);
         if(!from||!to)return;
         const dist=distanceLatLng(from.lat,from.lng,to.lat,to.lng);
         const ac=AIRCRAFT_DATA.find(a=>a.id===plane.aircraftId);
@@ -653,73 +454,36 @@ class AirlineTycoonGame {
         const speed=ac.speed-(this.state.weather==='storm'?80:this.state.weather==='rain'?30:this.state.weather==='fog'?50:0);
         const durationMin=(dist/speed)*60;
         plane.state='flying';
-        plane.currentFlight={
-            routeId:route.id,
-            fromCode:route.fromCode,
-            toCode:route.toCode,
-            distance:dist,
-            durationMin:durationMin,
-            progress:0,
-            startDay:this.state.day,
-            startHour:this.state.hour,
-            contractId:null
-        };
+        plane.currentFlight={routeId:route.id,fromCode:route.fromCode,toCode:route.toCode,distance:dist,durationMin,progress:0,contractId:null};
         plane.position={lat:from.lat,lng:from.lng,heading:this.calculateHeading(from,to)};
         this.placePlaneOnMap(plane,plane.position);
-        // Reset route line color
         if(this.routeLines[route.id])this.routeLines[route.id].setStyle({color:route.color||'#3498db',opacity:0.6});
-        // Add contract if available
-        const matchingContract=this.state.activeContracts.find(c=>
-            (c.fromCode===route.fromCode&&c.toCode===route.toCode||!c.fromCode)&&!c.assigned
-        );
-        if(matchingContract){
-            matchingContract.assigned=true;
-            plane.currentFlight.contractId=matchingContract.id;
-            this.addNotification(`📋 Contract assigned: ${matchingContract.name}`,'info');
-        }
+        const matchingContract=this.state.activeContracts.find(c=>(c.fromCode===route.fromCode&&c.toCode===route.toCode)&&!c.assigned);
+        if(matchingContract){matchingContract.assigned=true;plane.currentFlight.contractId=matchingContract.id;this.addNotification(`📋 Контракт назначен: ${matchingContract.name}`,'info');}
     }
-
     calculateHeading(from,to){
-        const dLng=(to.lng-from.lng)*Math.PI/180;
-        const lat1=from.lat*Math.PI/180;
-        const lat2=to.lat*Math.PI/180;
-        const y=Math.sin(dLng)*Math.cos(lat2);
-        const x=Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLng);
+        const dLng=(to.lng-from.lng)*Math.PI/180;const lat1=from.lat*Math.PI/180;const lat2=to.lat*Math.PI/180;
+        const y=Math.sin(dLng)*Math.cos(lat2);const x=Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLng);
         return(Math.atan2(y,x)*180/Math.PI+360)%360;
     }
-
-    // ============ ANIMATIONS ============
     updateAnimations(deltaMin){
         this.state.fleet.forEach(plane=>{
             if(plane.state==='flying'&&plane.currentFlight){
                 const flight=plane.currentFlight;
-                const from=this.getAirport(flight.fromCode);
-                const to=this.getAirport(flight.toCode);
+                const from=this.getAirport(flight.fromCode);const to=this.getAirport(flight.toCode);
                 if(!from||!to)return;
                 const t=flight.progress;
-                const lat=lerp(from.lat,to.lat,t);
-                const lng=lerp(from.lng,to.lng,t);
+                const lat=lerp(from.lat,to.lat,t);const lng=lerp(from.lng,to.lng,t);
                 const heading=this.calculateHeading(from,to);
                 plane.animationPos={lat,lng,heading};
                 if(this.planeMarkers[plane.id]){
                     this.planeMarkers[plane.id].setLatLng([lat,lng]);
-                    this.updateMarkerRotation(plane.id,heading);
+                    const el=this.planeMarkers[plane.id].getElement();
+                    if(el){const img=el.querySelector('img');if(img)img.style.transform=`rotate(${heading}deg)`;}
                 }
             }
         });
     }
-
-    updateMarkerRotation(planeId,heading){
-        const marker=this.planeMarkers[planeId];
-        if(marker){
-            const el=marker.getElement();
-            if(el){
-                const img=el.querySelector('img');
-                if(img)img.style.transform=`rotate(${heading}deg)`;
-            }
-        }
-    }
-
     placePlaneOnMap(plane,pos){
         const marker=this.createPlaneMarker(plane,pos);
         marker.addTo(this.animLayer);
@@ -727,32 +491,18 @@ class AirlineTycoonGame {
         marker.on('click',()=>this.selectPlane(plane));
         this.planeMarkers[plane.id]=marker;
     }
-
     removePlaneFromMap(planeId){
-        if(this.planeMarkers[planeId]){
-            this.animLayer.removeLayer(this.planeMarkers[planeId]);
-            delete this.planeMarkers[planeId];
-        }
+        if(this.planeMarkers[planeId]){this.animLayer.removeLayer(this.planeMarkers[planeId]);delete this.planeMarkers[planeId];}
     }
-
-    // ============ ROUTE LINES ============
     drawRouteLine(from,to,color='#3498db'){
         const key=from.code+'-'+to.code;
         if(this.routeLines[key])return;
         const line=L.polyline([[from.lat,from.lng],[to.lat,to.lng]],{color,weight:1.3,opacity:0.5,dashArray:null,pane:'overlayPane',interactive:false}).addTo(this.map);
         this.routeLines[key]=line;
-        // Also track by routeId if available
         const route=this.state.routes.find(r=>r.fromCode===from.code&&r.toCode===to.code);
         if(route)this.routeLines[route.id]=line;
     }
 
-    removeRouteLine(fromCode,toCode,routeId){
-        const key=fromCode+'-'+toCode;
-        if(this.routeLines[key]){this.map.removeLayer(this.routeLines[key]);delete this.routeLines[key];}
-        if(routeId&&this.routeLines[routeId]){delete this.routeLines[routeId];}
-    }
-
-    // ============ CONTRACTS ============
     generateContracts(){
         const count=3+Math.floor(Math.random()*4);
         this.state.availableContracts=[];
@@ -771,482 +521,268 @@ class AirlineTycoonGame {
             });
         }
     }
-
     acceptContract(contractId){
         const contract=this.state.availableContracts.find(c=>c.id===contractId);
         if(!contract)return;
         this.state.availableContracts=this.state.availableContracts.filter(c=>c.id!==contractId);
         this.state.activeContracts.push({...contract,acceptedDay:this.state.day,assigned:false});
-        this.addNotification(`📋 Contract accepted: ${contract.name}`, 'info');
+        this.addNotification(`📋 Контракт принят: ${contract.name}`,'info');
         this.renderContractsTab();
     }
-
     checkContractDeadlines(){
         this.state.activeContracts.forEach(c=>{
             if(!c.assigned&&this.state.day>c.acceptedDay+c.deadlineDays){
                 const penalty=Math.round(c.payout*c.penaltyPercent/100);
                 this.state.money=Math.max(0,this.state.money-penalty);
                 this.state.activeContracts=this.state.activeContracts.filter(x=>x.id!==c.id);
-                this.addNotification(`⚠ Contract expired: ${c.name}. Penalty: -${formatMoney(penalty)}`,'warning');
+                this.addNotification(`⚠ Срок контракта истёк: ${c.name}. Штраф: -${formatMoney(penalty)}`,'warning');
             }
         });
     }
-
-    // ============ AI ============
     updateAIActivity(){
-        // Simulate competitor activity
-        if(this.state.year>1&&Math.random()<0.1){
+        if(this.state.year>1&&Math.random()<0.1)
             this.state.economyState.demand=clamp(this.state.economyState.demand+randomFloat(-0.05,0.05),0.3,2.5);
-        }
     }
-
-    // ============ ACHIEVEMENTS ============
     checkAchievements(){
         const ach=this.state.achievements;
-        if(this.state.totalFlights>=1&&!ach.includes('first_flight')){
-            ach.push('first_flight');this.addNotification('🏆 Achievement: First Flight!','success');AudioEngine.success();
-        }
-        if(this.state.fleet.length>=5&&!ach.includes('fleet_5')){
-            ach.push('fleet_5');this.addNotification('🏆 Achievement: Fleet of 5!','success');AudioEngine.success();
-        }
-        if(this.state.fleet.length>=10&&!ach.includes('fleet_10')){
-            ach.push('fleet_10');this.addNotification('🏆 Achievement: Fleet of 10!','success');AudioEngine.success();
-        }
-        if(this.state.money>=10000000&&!ach.includes('millionaire')){
-            ach.push('millionaire');this.addNotification('🏆 Achievement: Millionaire!','success');AudioEngine.success();
-        }
-        if(this.state.statistics.contractsCompleted>=10&&!ach.includes('contractor_10')){
-            ach.push('contractor_10');this.addNotification('🏆 Achievement: 10 Contracts!','success');AudioEngine.success();
-        }
-        if(this.state.statistics.flightsCompleted>=100&&!ach.includes('flights_100')){
-            ach.push('flights_100');this.addNotification('🏆 Achievement: 100 Flights!','success');AudioEngine.success();
-        }
-        if(this.state.reputation>=80&&!ach.includes('reputation_80')){
-            ach.push('reputation_80');this.addNotification('🏆 Achievement: 80% Reputation!','success');AudioEngine.success();
-        }
+        const check=(id,name)=>{if(!ach.includes(id)){ach.push(id);this.addNotification('🏆 Достижение: '+name+'!','success');AudioEngine.success();}};
+        if(this.state.totalFlights>=1)check('first_flight','Первый полёт');
+        if(this.state.fleet.length>=5)check('fleet_5','Флот из 5 самолётов');
+        if(this.state.fleet.length>=10)check('fleet_10','Флот из 10 самолётов');
+        if(this.state.money>=10000000)check('millionaire','Миллионер');
+        if(this.state.statistics.contractsCompleted>=10)check('contractor_10','10 контрактов');
+        if(this.state.statistics.flightsCompleted>=100)check('flights_100','100 полётов');
+        if(this.state.reputation>=80)check('reputation_80','Репутация 80%');
     }
-
-    // ============ HELPERS ============
     getAirport(code){return this.state.airports.find(a=>a.code===code);}
     getAirportPos(code){const a=this.getAirport(code);return a?{lat:a.lat,lng:a.lng}:null;}
-    
     addNotification(msg,type='info'){
         const container=document.getElementById('notifications-container');
-        const div=document.createElement('div');
-        div.className='notification '+type;
-        div.textContent=msg;
-        container.prepend(div);
-        if(container.children.length>50)container.lastChild.remove();
-        if(type==='warning')AudioEngine.warning();
-        else if(type==='success')AudioEngine.notification();
+        const div=document.createElement('div');div.className='notification '+type;div.textContent=msg;
+        container.prepend(div);if(container.children.length>50)container.lastChild.remove();
+        if(type==='warning')AudioEngine.warning();else if(type==='success')AudioEngine.notification();
         else AudioEngine.notification();
     }
-
-    selectPlane(plane){
-        this.selectedObject={type:'plane',data:plane};
-        this.renderDetailPanel();
-    }
-
-    selectAirport(airport){
-        this.selectedObject={type:'airport',data:airport};
-        this.renderDetailPanel();
-        this.map.flyTo([airport.lat,airport.lng],6,{duration:0.8});
-    }
-
+    selectPlane(plane){this.selectedObject={type:'plane',data:plane};this.renderDetailPanel();}
+    selectAirport(airport){this.selectedObject={type:'airport',data:airport};this.renderDetailPanel();this.map.flyTo([airport.lat,airport.lng],6,{duration:0.8});}
     handleMapClick(e){
-        // Find nearest airport
         let nearest=null,minDist=Infinity;
-        this.state.airports.forEach(a=>{
-            const d=distanceLatLng(a.lat,a.lng,e.latlng.lat,e.latlng.lng);
-            if(d<minDist){minDist=d;nearest=a;}
-        });
+        this.state.airports.forEach(a=>{const d=distanceLatLng(a.lat,a.lng,e.latlng.lat,e.latlng.lng);if(d<minDist){minDist=d;nearest=a;}});
         if(nearest&&minDist<300)this.selectAirport(nearest);
     }
-
-    // ============ UI UPDATES ============
-    updateUI(){
-        this.updateTopBar();
-        this.updateBottomBar();
-    }
-
-    updateAllUI(){
-        this.updateTopBar();
-        this.updateBottomBar();
-        this.renderFleetTab();
-        this.renderRoutesTab();
-        this.renderContractsTab();
-        this.renderAirportsTab();
-        this.renderEconomyTab();
-        this.renderAchievementsTab();
-    }
-
+    updateUI(){this.updateTopBar();this.updateBottomBar();}
+    updateAllUI(){this.updateTopBar();this.updateBottomBar();this.renderFleetTab();this.renderRoutesTab();this.renderContractsTab();this.renderAirportsTab();this.renderEconomyTab();this.renderAchievementsTab();}
     updateTopBar(){
-        const h=String(this.state.hour).padStart(2,'0');
-        const m=String(Math.floor(this.state.minute)).padStart(2,'0');
-        const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][this.state.month-1];
-        document.getElementById('game-time').textContent=`Day ${this.state.day}, ${mn}, Year ${this.state.year} | ${h}:${m}`;
-        document.getElementById('time-speed').textContent=this.state.paused?'⏸ Paused':`▶ ${this.state.speed}x`;
+        const h=String(this.state.hour).padStart(2,'0');const m=String(Math.floor(this.state.minute)).padStart(2,'0');
+        document.getElementById('game-time').textContent=`День ${this.state.day}, ${MONTHS_RU[this.state.month-1]}, Год ${this.state.year} | ${h}:${m}`;
+        document.getElementById('time-speed').textContent=this.state.paused?'⏸ Пауза':`▶ ${this.state.speed}x`;
         document.getElementById('money-display').textContent=formatMoney(Math.floor(this.state.money));
-        document.getElementById('reputation-display').textContent=`Rep: ${Math.round(this.state.reputation)}%`;
+        document.getElementById('reputation-display').textContent=`Реп: ${Math.round(this.state.reputation)}%`;
     }
-
     updateBottomBar(){
         const active=this.state.fleet.filter(p=>p.state==='flying').length;
         const daily=this.state.statistics.dailyIncome.length>0?this.state.statistics.dailyIncome[this.state.statistics.dailyIncome.length-1]:0;
-        document.getElementById('fleet-status').textContent=`Fleet: ${this.state.fleet.length} | Active: ${active} | Income: ${formatMoney(daily)}/day`;
-        const wIcons={clear:'☀ Clear',cloudy:'☁ Cloudy',rain:'🌧 Rain',fog:'🌫 Fog',storm:'⛈ Storm',snow:'❄ Snow'};
-        document.getElementById('weather-status').textContent='Weather: '+(wIcons[this.state.weather]||'☀ Clear');
+        document.getElementById('fleet-status').textContent=`Флот: ${this.state.fleet.length} | В рейсе: ${active} | Доход: ${formatMoney(daily)}/день`;
+        document.getElementById('weather-status').textContent='Погода: '+WEATHER_ICONS[this.state.weather];
     }
-
     renderFleetTab(){
         const list=document.getElementById('fleet-list');
         if(this.state.fleet.length===0){
-            list.innerHTML='<p style="color:var(--text-dim);padding:20px;text-align:center;">No aircraft yet. Buy your first plane!</p>';
+            list.innerHTML='<p style="color:var(--text-dim);padding:20px;text-align:center;">Нет самолётов. Купите свой первый борт!</p>';
         }else{
             list.innerHTML=this.state.fleet.map(p=>{
                 const ac=AIRCRAFT_DATA.find(a=>a.id===p.aircraftId);
                 const statusClass='status-'+p.state;
-                let statusText=p.state.toUpperCase();
-                if(p.state==='flying'&&p.currentFlight)statusText='✈ FLYING → '+p.currentFlight.toCode;
+                let statusText=(STATUS_RU[p.state]||p.state).toUpperCase();
+                if(p.state==='flying'&&p.currentFlight)statusText='✈ ЛЕТИТ → '+p.currentFlight.toCode;
                 return `<div class="plane-card" onclick="window.__game.selectPlaneById('${p.id}')">
-                    <div class="plane-name">${p.name||ac?.name||'Aircraft'}</div>
+                    <div class="plane-name">${p.name||ac?.name||'Самолёт'}</div>
                     <div class="${statusClass} plane-status">${statusText}</div>
-                    <div style="font-size:9px;color:var(--text-dim);">Type: ${ac?.class||'?'} | Speed: ${ac?.speed||'?'} km/h | Capacity: ${ac?.capacity||0} pax / ${ac?.cargo||0} kg</div>
+                    <div style="font-size:9px;color:var(--text-dim);">Класс: ${ac?.class||'?'} | Скорость: ${ac?.speed||'?'} км/ч | Вмест: ${ac?.capacity||0} пас / ${ac?.cargo||0} кг</div>
                 </div>`;
             }).join('');
         }
     }
-
-    selectPlaneById(id){
-        const plane=this.state.fleet.find(p=>p.id===id);
-        if(plane)this.selectPlane(plane);
-    }
-
+    selectPlaneById(id){const plane=this.state.fleet.find(p=>p.id===id);if(plane)this.selectPlane(plane);}
     renderRoutesTab(){
         const list=document.getElementById('routes-list');
         if(this.state.routes.length===0){
-            list.innerHTML='<p style="color:var(--text-dim);padding:20px;text-align:center;">No routes yet. Create a route and assign a plane!</p>';
+            list.innerHTML='<p style="color:var(--text-dim);padding:20px;text-align:center;">Нет маршрутов. Создайте новый маршрут!</p>';
         }else{
             list.innerHTML=this.state.routes.map(r=>{
-                const assignedPlanes=this.state.fleet.filter(p=>p.assignedRouteId===r.id).length;
+                const assigned=this.state.fleet.filter(p=>p.assignedRouteId===r.id).length;
                 return `<div class="route-card" onclick="window.__game.selectRoute('${r.id}')">
-                    <div style="font-weight:700;color:var(--accent);">${r.fromCode} → ${r.toCode}</div>
-                    <div style="font-size:9px;color:var(--text-dim);">Income: ${formatMoney(r.income)} | Planes assigned: ${assignedPlanes}</div>
+                    <div style="font-weight:700;color:var(--accent);">${r.fromCode} → ${r.toCode} (${r.distance} км)</div>
+                    <div style="font-size:9px;color:var(--text-dim);">Доход: ${formatMoney(r.income)} | Назначено: ${assigned} сам.</div>
                 </div>`;
             }).join('');
         }
     }
-
-    selectRoute(id){
-        const route=this.state.routes.find(r=>r.id===id);
-        if(route){
-            const from=this.getAirport(route.fromCode);
-            const to=this.getAirport(route.toCode);
-            if(from)this.map.flyTo([from.lat,from.lng],5);
-        }
-    }
-
+    selectRoute(id){const r=this.state.routes.find(rr=>rr.id===id);if(r){const from=this.getAirport(r.fromCode);if(from)this.map.flyTo([from.lat,from.lng],5);}}
     renderContractsTab(){
         const list=document.getElementById('contracts-list');
-        let html='<h4 style="color:var(--accent);margin-bottom:6px;">Active Contracts</h4>';
-        if(this.state.activeContracts.length===0){
-            html+='<p style="color:var(--text-dim);font-size:10px;">No active contracts.</p>';
-        }else{
-            html+=this.state.activeContracts.map(c=>`
-                <div class="contract-card">
-                    <div style="font-weight:700;">${c.name}</div>
-                    <div style="font-size:9px;color:var(--text-dim);">${c.fromCode}→${c.toCode} | Payout: ${formatMoney(c.payout)} | Deadline: ${c.deadlineDays}d</div>
-                    <div style="font-size:9px;">Assigned: ${c.assigned?'✅ Yes':'⏳ Waiting'}</div>
-                </div>`).join('');
-        }
-        html+='<h4 style="color:var(--warning);margin:10px 0 6px;">Available Contracts</h4>';
-        if(this.state.availableContracts.length===0){
-            html+='<p style="color:var(--text-dim);font-size:10px;">No available contracts.</p>';
-        }else{
-            html+=this.state.availableContracts.map(c=>`
-                <div class="contract-card" style="border-color:var(--warning);" onclick="window.__game.acceptContract('${c.id}')">
-                    <div style="font-weight:700;">${c.name} <span style="color:var(--warning);">[${c.rarity}]</span></div>
-                    <div style="font-size:9px;color:var(--text-dim);">${c.fromCode}→${c.toCode} | ${formatMoney(c.payout)} | ${c.weight}kg | ${c.deadlineDays}d deadline</div>
-                    <button class="action-btn small-btn" style="margin-top:4px;">Accept</button>
-                </div>`).join('');
-        }
+        let html='<h4 style="color:var(--accent);margin-bottom:6px;">Активные контракты</h4>';
+        if(this.state.activeContracts.length===0)html+='<p style="color:var(--text-dim);font-size:10px;">Нет активных контрактов.</p>';
+        else html+=this.state.activeContracts.map(c=>`<div class="contract-card"><div style="font-weight:700;">${c.name}</div><div style="font-size:9px;color:var(--text-dim);">${c.fromCode}→${c.toCode} | ${formatMoney(c.payout)} | Срок: ${c.deadlineDays} дн.</div><div style="font-size:9px;">Назначен: ${c.assigned?'✅ Да':'⏳ Ожидает'}</div></div>`).join('');
+        html+='<h4 style="color:var(--warning);margin:10px 0 6px;">Доступные контракты</h4>';
+        if(this.state.availableContracts.length===0)html+='<p style="color:var(--text-dim);font-size:10px;">Нет доступных контрактов.</p>';
+        else html+=this.state.availableContracts.map(c=>`<div class="contract-card" style="border-color:var(--warning);" onclick="window.__game.acceptContract('${c.id}')"><div style="font-weight:700;">${c.name} <span style="color:var(--warning);">[${c.rarity}]</span></div><div style="font-size:9px;color:var(--text-dim);">${c.fromCode}→${c.toCode} | ${formatMoney(c.payout)} | ${c.weight} кг | ${c.deadlineDays} дн.</div><button class="action-btn small-btn" style="margin-top:4px;">Принять</button></div>`).join('');
         list.innerHTML=html;
     }
-
     renderAirportsTab(){
-        const list=document.getElementById('airports-list');
-        list.innerHTML=this.state.airports.map(a=>`
-            <div class="airport-card" onclick="window.__game.selectAirportByCode('${a.code}')">
-                <div style="font-weight:700;color:${a.hub?'var(--accent)':'var(--text)'};">${a.code} - ${a.city}</div>
-                <div style="font-size:9px;color:var(--text-dim);">${a.name}, ${a.country} | Hub: ${a.hub?'⭐ Yes':'No'} | Fees: ${formatMoney(a.fees)}</div>
-            </div>`).join('');
+        document.getElementById('airports-list').innerHTML=this.state.airports.map(a=>`<div class="airport-card" onclick="window.__game.selectAirportByCode('${a.code}')"><div style="font-weight:700;color:${a.hub?'var(--accent)':'var(--text)'};">${a.code} — ${a.city}, ${a.country}</div><div style="font-size:9px;color:var(--text-dim);">${a.name} | Хаб: ${a.hub?'⭐ Да':'Нет'} | Сборы: ${formatMoney(a.fees)}</div></div>`).join('');
     }
-
-    selectAirportByCode(code){
-        const a=this.getAirport(code);
-        if(a)this.selectAirport(a);
-    }
-
+    selectAirportByCode(code){const a=this.getAirport(code);if(a)this.selectAirport(a);}
     renderEconomyTab(){
         const e=this.state.economyState;
-        document.getElementById('economy-stats').innerHTML=`
-            <div style="line-height:1.8;font-size:11px;">
-                <div>📈 <b>Inflation:</b> ${e.inflation.toFixed(1)}%</div>
-                <div>⛽ <b>Fuel Price:</b> ${formatMoney(e.fuelPrice)}/L</div>
-                <div>📊 <b>Demand:</b> ${(e.demand*100).toFixed(0)}%</div>
-                <div>🌍 <b>Season:</b> ${e.season}</div>
-                <div>⚠ <b>Crisis:</b> ${e.crisis?'Yes!':'No'}</div>
-                <hr style="border-color:var(--secondary);margin:8px 0;">
-                <div>💰 <b>Total Earned:</b> ${formatMoney(this.state.statistics.totalEarned)}</div>
-                <div>💸 <b>Total Spent:</b> ${formatMoney(this.state.statistics.totalSpent)}</div>
-                <div>🛬 <b>Flights:</b> ${this.state.statistics.flightsCompleted}</div>
-                <div>📋 <b>Contracts:</b> ${this.state.statistics.contractsCompleted}</div>
-            </div>`;
+        document.getElementById('economy-stats').innerHTML=`<div style="line-height:1.8;font-size:11px;">
+            <div>📈 <b>Инфляция:</b> ${e.inflation.toFixed(1)}%</div>
+            <div>⛽ <b>Цена топлива:</b> ${formatMoney(e.fuelPrice)}/л</div>
+            <div>📊 <b>Спрос:</b> ${(e.demand*100).toFixed(0)}%</div>
+            <div>🌍 <b>Сезон:</b> ${e.season}</div>
+            <div>⚠ <b>Кризис:</b> ${e.crisis?'Да!':'Нет'}</div>
+            <hr style="border-color:var(--secondary);margin:8px 0;">
+            <div>💰 <b>Всего заработано:</b> ${formatMoney(this.state.statistics.totalEarned)}</div>
+            <div>💸 <b>Всего потрачено:</b> ${formatMoney(this.state.statistics.totalSpent)}</div>
+            <div>🛬 <b>Полётов:</b> ${this.state.statistics.flightsCompleted}</div>
+            <div>📋 <b>Контрактов:</b> ${this.state.statistics.contractsCompleted}</div>
+        </div>`;
     }
-
     renderAchievementsTab(){
         const all=[
-            {id:'first_flight',name:'First Flight',desc:'Complete your first flight'},
-            {id:'fleet_5',name:'Growing Fleet',desc:'Own 5 aircraft'},
-            {id:'fleet_10',name:'Airline Mogul',desc:'Own 10 aircraft'},
-            {id:'millionaire',name:'Millionaire',desc:'Reach $10,000,000'},
-            {id:'contractor_10',name:'Contractor',desc:'Complete 10 contracts'},
-            {id:'flights_100',name:'Century',desc:'Complete 100 flights'},
-            {id:'reputation_80',name:'Trusted',desc:'Reach 80% reputation'}
+            {id:'first_flight',name:'Первый полёт',desc:'Выполните ваш первый рейс'},
+            {id:'fleet_5',name:'Растущий флот',desc:'Владейте 5 самолётами'},
+            {id:'fleet_10',name:'Авиамагнат',desc:'Владейте 10 самолётами'},
+            {id:'millionaire',name:'Миллионер',desc:'Накопите $10 000 000'},
+            {id:'contractor_10',name:'Контрактник',desc:'Выполните 10 контрактов'},
+            {id:'flights_100',name:'Сотня',desc:'Выполните 100 полётов'},
+            {id:'reputation_80',name:'Надёжный перевозчик',desc:'Достигните 80% репутации'}
         ];
         document.getElementById('achievements-list').innerHTML=all.map(a=>{
             const earned=this.state.achievements.includes(a.id);
-            return `<div class="plane-card" style="border-color:${earned?'var(--accent)':'var(--secondary)'};opacity:${earned?1:0.6};">
-                <div style="font-weight:700;">${earned?'✅':'🔒'} ${a.name}</div>
-                <div style="font-size:9px;color:var(--text-dim);">${a.desc}</div>
-            </div>`;
+            return `<div class="plane-card" style="border-color:${earned?'var(--accent)':'var(--secondary)'};opacity:${earned?1:0.6};"><div style="font-weight:700;">${earned?'✅':'🔒'} ${a.name}</div><div style="font-size:9px;color:var(--text-dim);">${a.desc}</div></div>`;
         }).join('');
     }
-
     renderDetailPanel(){
         const content=document.getElementById('detail-content');
-        if(!this.selectedObject){content.textContent='Click on a plane or airport for details.';return;}
+        if(!this.selectedObject){content.textContent='Нажмите на самолёт или аэропорт для подробностей.';return;}
         if(this.selectedObject.type==='plane'){
-            const p=this.selectedObject.data;
-            const ac=AIRCRAFT_DATA.find(a=>a.id===p.aircraftId);
-            content.innerHTML=`
-                <b style="color:var(--accent);">✈ ${p.name||ac?.name}</b><br>
-                Type: ${ac?.class||'?'} | State: ${p.state}<br>
-                Speed: ${ac?.speed} km/h | Capacity: ${ac?.capacity||0}pax/${ac?.cargo||0}kg<br>
-                Fuel: ${p.fuel||ac?.maxTank||0}/${ac?.maxTank||0}L<br>
-                ${p.currentFlight?`Flying: ${p.currentFlight.fromCode}→${p.currentFlight.toCode}<br>Progress: ${(p.currentFlight.progress*100).toFixed(0)}%`:''}
-                <br><button class="action-btn small-btn" onclick="window.__game.sellPlane('${p.id}')" style="margin-top:6px;background:var(--danger);">Sell</button>
-            `;
+            const p=this.selectedObject.data;const ac=AIRCRAFT_DATA.find(a=>a.id===p.aircraftId);
+            content.innerHTML=`<b style="color:var(--accent);">✈ ${p.name||ac?.name}</b><br>
+                Класс: ${ac?.class||'?'} | Состояние: ${STATUS_RU[p.state]||p.state}<br>
+                Скорость: ${ac?.speed} км/ч | Вместимость: ${ac?.capacity||0} пас / ${ac?.cargo||0} кг<br>
+                Топливо: ${p.fuel||ac?.maxTank||0}/${ac?.maxTank||0} л<br>
+                ${p.currentFlight?`Рейс: ${p.currentFlight.fromCode}→${p.currentFlight.toCode}<br>Прогресс: ${(p.currentFlight.progress*100).toFixed(0)}%`:''}
+                <br><button class="action-btn small-btn" onclick="window.__game.sellPlane('${p.id}')" style="margin-top:6px;background:var(--danger);">Продать</button>`;
         }else if(this.selectedObject.type==='airport'){
             const a=this.selectedObject.data;
-            content.innerHTML=`
-                <b style="color:var(--accent);">🏢 ${a.code}</b><br>
-                ${a.name}, ${a.city}, ${a.country}<br>
-                Hub: ${a.hub?'⭐ Yes':'No'} | Level: ${a.level}<br>
-                Fees: ${formatMoney(a.fees)} | Slots: ${a.slots}
-            `;
+            content.innerHTML=`<b style="color:var(--accent);">🏢 ${a.code}</b><br>
+                ${a.name}<br>${a.city}, ${a.country}<br>
+                Хаб: ${a.hub?'⭐ Да':'Нет'} | Уровень: ${a.level}<br>
+                Сборы: ${formatMoney(a.fees)} | Слоты: ${a.slots}`;
         }
     }
-
-    // ============ MODALS ============
     openModal(title,html){
         const overlay=document.getElementById('modal-overlay');
-        const content=document.getElementById('modal-content');
-        content.innerHTML=`<button class="modal-close" onclick="window.__game.closeModal()">✕</button><h2>${title}</h2>${html}`;
+        document.getElementById('modal-content').innerHTML=`<button class="modal-close" onclick="window.__game.closeModal()">✕</button><h2>${title}</h2>${html}`;
         overlay.classList.remove('hidden');
     }
-
-    closeModal(){
-        document.getElementById('modal-overlay').classList.add('hidden');
-    }
-
+    closeModal(){document.getElementById('modal-overlay').classList.add('hidden');}
     openBuyPlaneModal(){
-        let html='<div style="display:grid;gap:8px;max-height:50vh;overflow-y:auto;">';
-        AIRCRAFT_DATA.forEach(ac=>{
-            html+=`<div style="background:var(--primary);padding:10px;border-radius:var(--radius);border:1px solid var(--secondary);">
-                <b>${ac.name}</b> [${ac.class}]<br>
-                <span style="font-size:10px;color:var(--text-dim);">
-                Price: ${formatMoney(ac.price)} | Speed: ${ac.speed} km/h | Cap: ${ac.capacity||0}pax/${ac.cargo||0}kg | Range: ${ac.range}km</span>
-                <button class="action-btn small-btn" onclick="window.__game.buyPlane('${ac.id}')">Buy</button>
-            </div>`;
-        });
-        html+='</div>';
-        this.openModal('Buy Aircraft',html);
+        let html='<div style="display:grid;gap:8px;max-height:55vh;overflow-y:auto;">';
+        AIRCRAFT_DATA.forEach(ac=>{html+=`<div style="background:var(--primary);padding:10px;border-radius:var(--radius);border:1px solid var(--secondary);"><b>${ac.name}</b> [${ac.class}]<br><span style="font-size:10px;color:var(--text-dim);">Цена: ${formatMoney(ac.price)} | Скорость: ${ac.speed} км/ч | Пасс: ${ac.capacity||0} | Груз: ${ac.cargo||0} кг | Дальность: ${ac.range} км</span><button class="action-btn small-btn" onclick="window.__game.buyPlane('${ac.id}')">Купить</button></div>`;});
+        html+='</div>';this.openModal('Покупка самолёта',html);
     }
-
     buyPlane(aircraftId){
-        const ac=AIRCRAFT_DATA.find(a=>a.id===aircraftId);
-        if(!ac)return;
+        const ac=AIRCRAFT_DATA.find(a=>a.id===aircraftId);if(!ac)return;
         const price=Math.round(ac.price*(1+this.state.economyState.inflation/100));
-        if(this.state.money<price){this.addNotification('❌ Not enough money!','error');return;}
-        this.state.money-=price;
-        this.state.statistics.totalSpent+=price;
-        const plane={
-            id:generateId(),aircraftId:ac.id,name:ac.name,type:ac.type,class:ac.class,
-            state:'idle',fuel:ac.maxTank,position:null,color:this.randomPlaneColor(),
-            assignedRouteId:null,currentFlight:null,animationPos:null,heading:0
-        };
+        if(this.state.money<price){this.addNotification('❌ Недостаточно средств!','error');return;}
+        this.state.money-=price;this.state.statistics.totalSpent+=price;
+        const plane={id:generateId(),aircraftId:ac.id,name:ac.name,type:ac.type,class:ac.class,state:'idle',fuel:ac.maxTank,position:null,color:['#3498db','#e74c3c','#27ae60','#f39c12','#9b59b6','#1abc9c','#e67e22','#2ecc71'][Math.floor(Math.random()*8)],assignedRouteId:null,currentFlight:null,animationPos:null,heading:0};
         this.state.fleet.push(plane);
-        this.addNotification(`✅ Purchased ${ac.name} for ${formatMoney(price)}`,'success');
-        AudioEngine.buy();
-        this.closeModal();
-        this.renderFleetTab();
-        this.updateBottomBar();
+        this.addNotification(`✅ Куплен ${ac.name} за ${formatMoney(price)}`,'success');
+        AudioEngine.buy();this.closeModal();this.renderFleetTab();this.updateBottomBar();
     }
-
     sellPlane(planeId){
-        const idx=this.state.fleet.findIndex(p=>p.id===planeId);
-        if(idx<0)return;
-        const plane=this.state.fleet[idx];
-        const ac=AIRCRAFT_DATA.find(a=>a.id===plane.aircraftId);
-        const sellPrice=Math.round((ac?.price||0)*0.6);
-        this.state.money+=sellPrice;
+        const idx=this.state.fleet.findIndex(p=>p.id===planeId);if(idx<0)return;
+        const plane=this.state.fleet[idx];const ac=AIRCRAFT_DATA.find(a=>a.id===plane.aircraftId);
+        const sellPrice=Math.round((ac?.price||0)*0.6);this.state.money+=sellPrice;
         this.state.statistics.totalEarned+=sellPrice;
-        this.removePlaneFromMap(plane.id);
-        this.state.fleet.splice(idx,1);
-        this.addNotification(`💰 Sold ${plane.name} for ${formatMoney(sellPrice)}`,'info');
-        this.selectedObject=null;
-        this.renderDetailPanel();
-        this.renderFleetTab();
-        this.renderRoutesTab();
+        this.removePlaneFromMap(plane.id);this.state.fleet.splice(idx,1);
+        this.addNotification(`💰 Продан ${plane.name} за ${formatMoney(sellPrice)}`,'info');
+        this.selectedObject=null;this.renderDetailPanel();this.renderFleetTab();this.renderRoutesTab();
     }
-
-    randomPlaneColor(){
-        const colors=['#3498db','#e74c3c','#27ae60','#f39c12','#9b59b6','#1abc9c','#e67e22','#2ecc71'];
-        return colors[Math.floor(Math.random()*colors.length)];
-    }
-
     openCreateRouteModal(){
-        const airportOptions=this.state.airports.map(a=>`<option value="${a.code}">${a.code} - ${a.city}</option>`).join('');
+        const airportOptions=this.state.airports.map(a=>`<option value="${a.code}">${a.code} — ${a.city}, ${a.country}</option>`).join('');
         const planeOptions=this.state.fleet.filter(p=>p.state==='idle').map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-        const html=`
-            <label>From Airport</label><select id="route-from">${airportOptions}</select>
-            <label>To Airport</label><select id="route-to">${airportOptions}</select>
-            <label>Assign Plane</label><select id="route-plane"><option value="">None (manual)</option>${planeOptions}</select>
-            <button class="action-btn" onclick="window.__game.createRoute()">Create Route</button>
-            <p style="font-size:10px;color:var(--text-dim);margin-top:6px;">Route income is calculated based on distance, demand, and aircraft capacity.</p>
-        `;
-        this.openModal('Create New Route',html);
+        this.openModal('Создать новый маршрут',`
+            <label>Аэропорт вылета</label><select id="route-from">${airportOptions}</select>
+            <label>Аэропорт назначения</label><select id="route-to">${airportOptions}</select>
+            <label>Назначить самолёт</label><select id="route-plane"><option value="">Нет (вручную)</option>${planeOptions}</select>
+            <button class="action-btn" onclick="window.__game.createRoute()">Создать маршрут</button>
+            <p style="font-size:10px;color:var(--text-dim);margin-top:6px;">Доход зависит от расстояния, спроса и вместимости самолёта.</p>
+        `);
     }
-
     createRoute(){
         const fromCode=document.getElementById('route-from')?.value;
         const toCode=document.getElementById('route-to')?.value;
         const planeId=document.getElementById('route-plane')?.value;
-        if(!fromCode||!toCode||fromCode===toCode){this.addNotification('❌ Invalid airports!','error');return;}
-        const from=this.getAirport(fromCode);
-        const to=this.getAirport(toCode);
+        if(!fromCode||!toCode||fromCode===toCode){this.addNotification('❌ Выберите разные аэропорты!','error');return;}
+        const from=this.getAirport(fromCode);const to=this.getAirport(toCode);
         if(!from||!to)return;
-        // Check duplicate
-        if(this.state.routes.find(r=>r.fromCode===fromCode&&r.toCode===toCode)){
-            this.addNotification('⚠ Route already exists!','warning');return;
-        }
+        if(this.state.routes.find(r=>r.fromCode===fromCode&&r.toCode===toCode)){this.addNotification('⚠ Такой маршрут уже существует!','warning');return;}
         const dist=distanceLatLng(from.lat,from.lng,to.lat,to.lng);
         const baseIncome=Math.round(dist*2.5*this.state.economyState.demand);
-        const route={
-            id:generateId(),fromCode,toCode,distance:Math.round(dist),
-            income:baseIncome,color:'#'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0'),
-            created:this.state.day
-        };
-        this.state.routes.push(route);
-        this.drawRouteLine(from,to,route.color);
-        // Assign plane if selected
-        if(planeId){
-            const plane=this.state.fleet.find(p=>p.id===planeId);
-            if(plane){
-                plane.assignedRouteId=route.id;
-                this.startFlightOnRoute(plane,route);
-            }
-        }
-        this.addNotification(`🗺 Route created: ${fromCode}→${toCode} (${Math.round(dist)}km, ${formatMoney(baseIncome)}/flight)`,'success');
-        this.closeModal();
-        this.renderRoutesTab();
-        this.renderFleetTab();
+        const route={id:generateId(),fromCode,toCode,distance:Math.round(dist),income:baseIncome,color:'#'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0'),created:this.state.day};
+        this.state.routes.push(route);this.drawRouteLine(from,to,route.color);
+        if(planeId){const plane=this.state.fleet.find(p=>p.id===planeId);if(plane){plane.assignedRouteId=route.id;this.startFlightOnRoute(plane,route);}}
+        this.addNotification(`🗺 Маршрут создан: ${fromCode}→${toCode} (${Math.round(dist)} км, ${formatMoney(baseIncome)}/рейс)`,'success');
+        this.closeModal();this.renderRoutesTab();this.renderFleetTab();
     }
-
-    // ============ SAVE/LOAD ============
-    saveGame(){
-        if(SaveEngine.save(this.state)){
-            this.addNotification('💾 Game saved successfully!','success');
-        }else{
-            this.addNotification('❌ Failed to save game.','error');
-        }
-    }
-
+    saveGame(){if(SaveEngine.save(this.state))this.addNotification('💾 Игра сохранена!','success');else this.addNotification('❌ Ошибка сохранения.','error');}
     loadGameFromStorage(){
         const data=SaveEngine.load();
-        if(data){
-            this.cleanupBeforeLoad();
-            this.state.fromJSON(data);
-            this.restoreVisuals();
-            this.updateAllUI();
-            this.addNotification('📂 Game loaded!','success');
-        }else{
-            this.addNotification('⚠ No save found.','warning');
-        }
+        if(data){this.cleanupBeforeLoad();this.state.fromJSON(data);this.restoreVisuals();this.updateAllUI();this.addNotification('📂 Игра загружена!','success');}
+        else this.addNotification('⚠ Сохранение не найдено.','warning');
     }
-
     importSaveFile(file){
         if(!file)return;
         SaveEngine.importSave(file,(data)=>{
-            if(data){
-                this.cleanupBeforeLoad();
-                this.state.fromJSON(data);
-                this.restoreVisuals();
-                this.updateAllUI();
-                this.addNotification('📥 Save imported!','success');
-            }else{
-                this.addNotification('❌ Invalid save file.','error');
-            }
+            if(data){this.cleanupBeforeLoad();this.state.fromJSON(data);this.restoreVisuals();this.updateAllUI();this.addNotification('📥 Сохранение импортировано!','success');}
+            else this.addNotification('❌ Неверный файл сохранения.','error');
         });
         document.getElementById('import-file').value='';
     }
-
     resetGame(){
-        if(confirm('Are you sure you want to reset ALL progress? This cannot be undone.')){
-            this.cleanupBeforeLoad();
-            this.state.reset();
-            SaveEngine.deleteSave();
-            this.updateAllUI();
-            this.addNotification('🔄 Game reset.','info');
+        if(confirm('Вы уверены, что хотите сбросить ВЕСЬ прогресс? Это действие необратимо.')){
+            this.cleanupBeforeLoad();this.state.reset();SaveEngine.deleteSave();this.updateAllUI();
+            this.addNotification('🔄 Прогресс сброшен.','info');
         }
     }
-
     cleanupBeforeLoad(){
-        // Remove all plane markers
         Object.keys(this.planeMarkers).forEach(id=>this.removePlaneFromMap(id));
-        // Remove all route lines
-        Object.keys(this.routeLines).forEach(key=>{
-            this.map.removeLayer(this.routeLines[key]);
-            delete this.routeLines[key];
-        });
+        Object.keys(this.routeLines).forEach(key=>{this.map.removeLayer(this.routeLines[key]);delete this.routeLines[key];});
         this.selectedObject=null;
     }
-
-    // ============ CONTROLS ============
     setSpeed(speed){
         this.state.speed=speed;
         document.querySelectorAll('#map-controls .map-btn').forEach(b=>b.classList.remove('active'));
-        const btn=document.getElementById('btn-speed-'+speed+'x');
-        if(btn)btn.classList.add('active');
+        const btn=document.getElementById('btn-speed-'+speed+'x');if(btn)btn.classList.add('active');
         this.updateTopBar();
     }
-
     togglePause(){
         this.state.paused=!this.state.paused;
         if(!this.state.paused)this.lastTick=Date.now();
-        const btn=document.getElementById('btn-pause');
-        if(btn)btn.textContent=this.state.paused?'▶':'⏯️';
+        document.getElementById('btn-pause').textContent=this.state.paused?'▶':'⏯️';
         this.updateTopBar();
     }
 }
 
-// ============ BOOTSTRAP ============
 window.addEventListener('DOMContentLoaded',()=>{
     const game=new AirlineTycoonGame();
     window.__game=game;
-    game.init().catch(err=>console.error('Init error:',err));
+    game.init().catch(err=>console.error('Ошибка инициализации:',err));
 });
 </script>
 </body>
-    </html>
+</html>
