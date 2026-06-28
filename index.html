@@ -2,50 +2,128 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Симулятор Авиакомпании</title>
+    <title>Airline Tycoon PRO</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
-        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
-        /* Задаем размер карты на весь экран */
-        #map { height: 100vh; width: 100%; }
-        
-        /* Простенькая панель интерфейса поверх карты */
-        #ui-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            z-index: 1000; /* Чтобы панель была над картой */
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; background: #1a1a1a; color: #eee; }
+        #sidebar { width: 320px; padding: 20px; background: #2c3e50; box-shadow: 2px 0 10px rgba(0,0,0,0.5); z-index: 1000; }
+        #map { flex-grow: 1; }
+        .stat { font-size: 1.2em; margin-bottom: 10px; color: #f1c40f; }
+        select, button { width: 100%; padding: 10px; margin: 5px 0; border: none; border-radius: 4px; cursor: pointer; }
+        button { background: #27ae60; color: white; font-weight: bold; }
+        button:hover { background: #2ecc71; }
+        #log { height: 200px; overflow-y: auto; background: #000; padding: 10px; font-size: 0.85em; border-radius: 4px; border: 1px solid #444; }
     </style>
 </head>
 <body>
 
-    <div id="ui-panel">
-        <h3>Моя Авиакомпания</h3>
-        <p>Деньги: <b>$100,000</b></p>
-        <p>Самолетов: <b>1</b></p>
-    </div>
+<div id="sidebar">
+    <h2>Airline Tycoon</h2>
+    <div class="stat">Капитал: $<span id="money">1000</span></div>
+    
+    <button onclick="buyPlane()">Купить самолет ($500)</button>
 
-    <div id="map"></div>
+    <hr>
+    <h3>Управление</h3>
+    <select id="planeSelect"><option>Нет самолетов</option></select>
+    <select id="airportFrom"></select>
+    <select id="airportTo"></select>
+    <button onclick="startFlight()">Начать полет</button>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script>
-        // 1. Создаем карту и центрируем ее (например, над Европой)
-        var map = L.map('map').setView([50.0, 15.0], 4);
+    <h3>Лог событий</h3>
+    <div id="log"></div>
+</div>
 
-        // 2. Добавляем бесплатный визуальный слой карты от OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
+<div id="map"></div>
 
-        // 3. Создаем наш первый аэропорт (координаты Франкфурта)
-        var airport = L.marker([50.0333, 8.5705]).addTo(map);
-        airport.bindPopup("<b>Аэропорт EDDF</b><br>Ваш первый хаб.").openPopup();
-    </script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    const map = L.map('map').setView([50, 15], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    const airports = [
+        { name: "Москва", coords: [55.75, 37.61] },
+        { name: "Берлин", coords: [52.52, 13.40] },
+        { name: "Париж", coords: [48.85, 2.35] },
+        { name: "Лондон", coords: [51.50, -0.12] }
+    ];
+
+    let money = 1000;
+    let planes = [];
+
+    // Инициализация
+    airports.forEach(a => {
+        L.marker(a.coords).addTo(map).bindPopup(a.name);
+        document.getElementById('airportFrom').innerHTML += `<option value="${a.name}">${a.name}</option>`;
+        document.getElementById('airportTo').innerHTML += `<option value="${a.name}">${a.name}</option>`;
+    });
+
+    function log(msg) {
+        const l = document.getElementById('log');
+        l.innerHTML = `> ${msg}<br>` + l.innerHTML;
+    }
+
+    function buyPlane() {
+        if (money >= 500) {
+            money -= 500;
+            const p = { id: planes.length, pos: [55.75, 37.61], status: 'idle', marker: null };
+            p.marker = L.marker(p.pos).addTo(map).bindPopup("Самолет " + p.id);
+            planes.push(p);
+            updateUI();
+            log("Куплен самолет #" + p.id);
+        } else alert("Недостаточно денег!");
+    }
+
+    function updateUI() {
+        document.getElementById('money').innerText = money;
+        const s = document.getElementById('planeSelect');
+        s.innerHTML = planes.map((p, i) => `<option value="${i}">Самолет ${i} (${p.status})</option>`).join('');
+    }
+
+    function getDist(a, b) {
+        return Math.sqrt(Math.pow(a[0]-b[0], 2) + Math.pow(a[1]-b[1], 2));
+    }
+
+    function startFlight() {
+        const pIdx = document.getElementById('planeSelect').value;
+        if (planes[pIdx].status === 'flying') return alert("Самолет занят!");
+        
+        const fromName = document.getElementById('airportFrom').value;
+        const toName = document.getElementById('airportTo').value;
+        const from = airports.find(a => a.name === fromName).coords;
+        const to = airports.find(a => a.name === toName).coords;
+        
+        const dist = getDist(from, to);
+        const fuelCost = Math.floor(dist * 20); // Расход топлива
+        
+        if (money < fuelCost) return alert("Мало денег на топливо! Нужно $" + fuelCost);
+        
+        money -= fuelCost;
+        planes[pIdx].status = 'flying';
+        updateUI();
+        
+        const line = L.polyline([from, to], {color: 'red'}).addTo(map);
+        log(`Полет ${fromName} -> ${toName}. Топливо: -$${fuelCost}`);
+        
+        let steps = 0;
+        const interval = setInterval(() => {
+            steps++;
+            const lat = from[0] + (to[0] - from[0]) * (steps/100);
+            const lng = from[1] + (to[1] - from[1]) * (steps/100);
+            planes[pIdx].marker.setLatLng([lat, lng]);
+            
+            if (steps >= 100) {
+                clearInterval(interval);
+                map.removeLayer(line);
+                planes[pIdx].status = 'idle';
+                const profit = Math.floor(dist * 50);
+                money += profit;
+                log(`Рейс завершен! Прибыль: +$${profit}`);
+                updateUI();
+            }
+        }, 50);
+    }
+    updateUI();
+</script>
 </body>
 </html>
