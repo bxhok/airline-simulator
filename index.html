@@ -1,700 +1,976 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>✈️ Airline Tycoon Simulator</title>
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>
-    /* ===== ГЛОБАЛЬНЫЕ СТИЛИ ===== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #0b1a2f;
-      color: #e0e8f0;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    #app {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-
-    /* ===== ШАПКА ===== */
-    header {
-      background: #122b44;
-      padding: 12px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid #2a6f9c;
-      flex-shrink: 0;
-    }
-
-    header h1 {
-      font-size: 24px;
-      letter-spacing: 1px;
-    }
-
-    #game-info {
-      display: flex;
-      gap: 32px;
-      font-size: 18px;
-      font-weight: 500;
-    }
-
-    #game-info span {
-      background: #1a3a55;
-      padding: 4px 16px;
-      border-radius: 20px;
-      border: 1px solid #2a6f9c;
-    }
-
-    /* ===== ОСНОВНАЯ ЧАСТЬ ===== */
-    main {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-    }
-
-    /* ===== БОКОВАЯ ПАНЕЛЬ ===== */
-    #sidebar {
-      width: 320px;
-      background: #0f1f30;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      border-right: 2px solid #1a3a55;
-      overflow-y: auto;
-      flex-shrink: 0;
-    }
-
-    #sidebar .btn-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    #sidebar button {
-      background: #1d3b57;
-      border: none;
-      color: #fff;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: 0.2s;
-      flex: 1 0 auto;
-      font-size: 14px;
-    }
-
-    #sidebar button:hover {
-      background: #2a5a7a;
-      transform: scale(1.02);
-    }
-
-    #sidebar button.active {
-      background: #2a6f9c;
-      box-shadow: 0 0 8px #2a6f9c;
-    }
-
-    #panel-content {
-      flex: 1;
-      margin-top: 12px;
-      background: #122b44;
-      border-radius: 8px;
-      padding: 12px;
-      overflow-y: auto;
-      min-height: 200px;
-    }
-
-    #panel-content h3 {
-      margin: 12px 0 8px 0;
-      color: #8fcbff;
-      border-bottom: 1px solid #2a6f9c;
-      padding-bottom: 4px;
-    }
-
-    #panel-content .item {
-      background: #1a3a55;
-      padding: 8px 12px;
-      margin: 4px 0;
-      border-radius: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    #panel-content .item .label {
-      font-weight: 300;
-    }
-    #panel-content .item .value {
-      font-weight: 600;
-      color: #ffd966;
-    }
-
-    /* ===== ФОРМА ДОБАВЛЕНИЯ МАРШРУТА ===== */
-    .route-form {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .route-form select,
-    .route-form input {
-      padding: 6px 10px;
-      border-radius: 4px;
-      border: 1px solid #2a6f9c;
-      background: #0b1a2f;
-      color: #e0e8f0;
-      font-size: 14px;
-    }
-
-    .route-form button {
-      background: #2a6f9c;
-      border: none;
-      color: #fff;
-      padding: 8px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .route-form button:hover {
-      background: #3a8fc9;
-    }
-
-    /* ===== КАРТА ===== */
-    #map-container {
-      flex: 1;
-      background: #1a2f40;
-      height: 100%;
-    }
-
-    /* ===== АДАПТИВ ===== */
-    @media (max-width: 768px) {
-      #sidebar {
-        width: 260px;
-      }
-      header h1 {
-        font-size: 18px;
-      }
-      #game-info {
-        font-size: 14px;
-        gap: 12px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Airline Tycoon Simulator</title>
+<link rel="stylesheet" href="[https://unpkg.com/leaflet@1.9.4/dist/leaflet.css](https://unpkg.com/leaflet@1.9.4/dist/leaflet.css)" />
+<script src="[https://unpkg.com/leaflet@1.9.4/dist/leaflet.js](https://unpkg.com/leaflet@1.9.4/dist/leaflet.js)"></script>
+<style>
+/* Концепция интерфейса: Минималистичный интерфейс в тёмной теме /
+/ Основные цвета палитры: #2c3e50, #34495e, #27ae60, #ecf0f1 */
+:root {
+--bg-primary: #2c3e50;
+--bg-secondary: #34495e;
+--accent-success: #27ae60;
+--accent-danger: #c0392b;
+--accent-warning: #f39c12;
+--text-light: #ecf0f1;
+--text-dark: #7f8c8d;
+--border-color: #4b6584;
+}  
+​* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Читаемый шрифт */
+}  
+​body {
+background-color: var(--bg-primary);
+color: var(--text-light);
+overflow: hidden;
+height: 100vh;
+display: flex;
+flex-direction: column;
+}
+​/* Верхняя панель состояния */
+#top-bar {
+background-color: #1a252f;
+height: 50px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0 20px;
+border-bottom: 2px solid var(--border-color);
+z-index: 1000;
+}
+​.company-info {
+display: flex;
+align-items: center;
+gap: 20px;
+}
+​.company-name {
+font-weight: bold;
+color: var(--accent-success);
+font-size: 1.2rem;
+}
+​.stats-display {
+display: flex;
+gap: 25px;
+font-size: 0.95rem;
+}
+​.stat-item {
+display: flex;
+align-items: center;
+gap: 5px;
+}
+​.stat-value {
+font-weight: bold;
+color: var(--text-light);
+}
+​.stat-value.money {
+color: #f1c40f;
+}
+​/* Главная рабочая область */
+#main-container {
+display: flex;
+flex: 1;
+position: relative;
+height: calc(100vh - 50px);
+}
+​/* Боковая панель управления */
+#sidebar {
+width: 450px;
+background-color: var(--bg-secondary);
+border-right: 2px solid var(--border-color);
+display: flex;
+flex-direction: column;
+z-index: 999;
+transition: transform 0.3s ease;
+}  
+​/* Карта Leaflet занимает основное пространство */
+#map {
+flex: 1;
+height: 100%;
+background-color: #1e272e;
+}  
+​/* Навигация в табах */
+.tabs-nav {
+display: flex;
+background-color: #2c3e50;
+border-bottom: 1px solid var(--border-color);
+}
+​.tab-btn {
+flex: 1;
+padding: 12px 5px;
+background: none;
+border: none;
+color: var(--text-dark);
+font-weight: bold;
+cursor: pointer;
+text-align: center;
+font-size: 0.85rem;
+transition: all 0.2s ease;
+}
+​.tab-btn:hover {
+color: var(--text-light);
+background-color: rgba(255,255,255,0.05);
+}
+​.tab-btn.active {
+color: var(--text-light);
+background-color: var(--bg-secondary);
+border-bottom: 3px solid var(--accent-success);
+}
+​/* Контент табов */
+.tab-content {
+flex: 1;
+overflow-y: auto;
+padding: 15px;
+display: none;
+}
+​.tab-content.active {
+display: block;
+}
+​/* Элементы списков и карточки */
+.card {
+background-color: var(--bg-primary);
+border-radius: 6px;
+padding: 12px;
+margin-bottom: 12px;
+border: 1px solid var(--border-color);
+}
+​.card-title {
+font-size: 1rem;
+font-weight: bold;
+margin-bottom: 8px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+border-bottom: 1px solid var(--border-color);
+padding-bottom: 5px;
+}
+​.card-row {
+display: flex;
+justify-content: space-between;
+font-size: 0.85rem;
+margin-bottom: 4px;
+}
+​.card-row .label {
+color: #95a5a6;
+}
+​/* Кнопки управления */
+.btn {
+background-color: var(--accent-success);
+color: white;
+border: none;
+padding: 8px 12px;
+border-radius: 4px;
+cursor: pointer;
+font-weight: bold;
+font-size: 0.85rem;
+width: 100%;
+text-align: center;
+margin-top: 8px;
+transition: background 0.2s;
+}
+​.btn:hover {
+filter: brightness(1.1);
+}
+​.btn:disabled {
+background-color: #7f8c8d;
+cursor: not-allowed;
+}
+​.btn-danger {
+background-color: var(--accent-danger);
+}
+​/* Индикаторы прогресса (износ, загрузка) */
+.progress-container {
+background-color: #1a252f;
+border-radius: 4px;
+height: 8px;
+width: 100%;
+margin-top: 5px;
+overflow: hidden;
+}
+​.progress-bar {
+height: 100%;
+background-color: var(--accent-success);
+width: 0%;
+transition: width 0.1s linear;
+}
+​/* Статусы самолетов */
+.status-badge {
+font-size: 0.75rem;
+padding: 2px 6px;
+border-radius: 3px;
+font-weight: bold;
+}
+.status-free { background-color: #27ae60; color: white; }
+.status-loading { background-color: #f39c12; color: white; }
+.status-flight { background-color: #2980b9; color: white; }
+.status-maintenance { background-color: #8e44ad; color: white; }
+.status-broken { background-color: #c0392b; color: white; }
+​/* Логи событий */
+.log-container {
+font-family: 'Courier New', Courier, monospace;
+font-size: 0.8rem;
+background-color: #1a252f;
+padding: 10px;
+border-radius: 4px;
+height: calc(100vh - 150px);
+overflow-y: auto;
+border: 1px solid var(--border-color);
+}
+​.log-item {
+margin-bottom: 6px;
+line-height: 1.2;
+border-bottom: 1px solid #2c3e50;
+padding-bottom: 4px;
+}
+​.log-time { color: #f1c40f; }
+.log-text { color: #ecf0f1; }
+​/* Стилизация маркеров на карте Leaflet */
+.leaflet-div-icon {
+background: none !important;
+border: none !important;
+}
+​/* Специфические стили для апгрейдов */
+.upgrade-grid {
+display: grid;
+grid-template-columns: 1fr;
+gap: 10px;
+}
+​/* Стили кастомного фильтра для темной карты Leaflet */
+.leaflet-tile-layer {
+filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+</style>
 </head>
 <body>
-  <div id="app">
-    <!-- ШАПКА -->
-    <header>
-      <h1>✈️ Airline Tycoon</h1>
-      <div id="game-info">
-        <span>💰 <span id="cash">10 000 000</span> $</span>
-        <span>📅 День <span id="day">1</span></span>
-        <span>✈️ <span id="fleet-count">0</span></span>
-      </div>
-    </header>
-
-    <!-- ОСНОВНАЯ ЧАСТЬ -->
-    <main>
-      <!-- Боковая панель -->
-      <aside id="sidebar">
-        <div class="btn-group">
-          <button data-view="fleet" class="active">🛩️ Флот</button>
-          <button data-view="routes">🗺️ Маршруты</button>
-          <button data-view="add-route">➕ Новый маршрут</button>
-          <button data-view="market">📊 Рынок</button>
-        </div>
-        <div id="panel-content">
-          <!-- Содержимое панели будет рендериться через JS -->
-        </div>
-      </aside>
-
-      <!-- Карта -->
-      <section id="map-container"></section>
-    </main>
-  </div>
-
-  <!-- ===== ПОДКЛЮЧЕНИЕ LEAFLET ===== -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-  </script>
-
-  <!-- ===== ОСНОВНОЙ СКРИПТ (ВСЯ ИГРА) ===== -->
-  <script>
-    // ------------------------------------------------------------
-    // 1. ДАННЫЕ (аэропорты и самолёты)
-    // ------------------------------------------------------------
-    const AIRPORTS_DATA = [
-      { id: "lhr", name: "Хитроу", city: "Лондон", country: "Великобритания", lat: 51.47, lng: -0.45,
-        passengersPerYear: 80000000 },
-      { id: "jfk", name: "Джон Кеннеди", city: "Нью-Йорк", country: "США", lat: 40.64, lng: -73.78,
-        passengersPerYear: 62000000 },
-      { id: "svo", name: "Шереметьево", city: "Москва", country: "Россия", lat: 55.97, lng: 37.41,
-        passengersPerYear: 40000000 },
-      { id: "dxb", name: "Дубай", city: "Дубай", country: "ОАЭ", lat: 25.25, lng: 55.36, passengersPerYear: 89000000 },
-      { id: "cdg", name: "Шарль-де-Голль", city: "Париж", country: "Франция", lat: 49.01, lng: 2.55,
-        passengersPerYear: 72000000 },
-      { id: "fra", name: "Франкфурт", city: "Франкфурт", country: "Германия", lat: 50.03, lng: 8.57,
-        passengersPerYear: 70000000 },
-      { id: "ist", name: "Новый аэропорт Стамбула", city: "Стамбул", country: "Турция", lat: 41.26, lng: 28.74,
-        passengersPerYear: 68000000 },
-      { id: "sin", name: "Чанги", city: "Сингапур", country: "Сингапур", lat: 1.36, lng: 103.99, passengersPerYear: 68000000 }
-    ];
-
-    const AIRCRAFTS_DATA = [
-      { id: "b737", model: "Boeing 737-800", capacity: 189, range: 5765, speed: 840, fuelBurn: 2.6, maintenanceCost: 1200,
-        price: 9000000 },
-      { id: "a320", model: "Airbus A320neo", capacity: 180, range: 6300, speed: 830, fuelBurn: 2.3, maintenanceCost: 1100,
-        price: 10500000 },
-      { id: "b787", model: "Boeing 787-9", capacity: 290, range: 14140, speed: 900, fuelBurn: 3.8, maintenanceCost: 2500,
-        price: 28000000 },
-      { id: "a380", model: "Airbus A380", capacity: 550, range: 14800, speed: 900, fuelBurn: 5.2, maintenanceCost: 4000,
-        price: 45000000 }
-    ];
-
-    // ------------------------------------------------------------
-    // 2. КЛАССЫ
-    // ------------------------------------------------------------
-    class Airport {
-      constructor(data) {
-        this.id = data.id;
-        this.name = data.name;
-        this.city = data.city;
-        this.country = data.country;
-        this.lat = data.lat;
-        this.lng = data.lng;
-        this.runways = data.runways || 1;
-        this.passengersPerYear = data.passengersPerYear || 1000000;
-      }
-    }
-
-    class Aircraft {
-      constructor(data) {
-        this.id = data.id;
-        this.model = data.model;
-        this.capacity = data.capacity;
-        this.range = data.range;
-        this.speed = data.speed;
-        this.fuelBurn = data.fuelBurn;
-        this.maintenanceCost = data.maintenanceCost || 500;
-        this.price = data.price || 5000000;
-      }
-    }
-
-    class Route {
-      constructor(from, to, aircraft, price) {
-        this.from = from;
-        this.to = to;
-        this.aircraft = aircraft;
-        this.price = price;
-        this.demand = Math.floor(Math.random() * 80 + 20); // 20-100
-        this.loadFactor = 0.7 + Math.random() * 0.25; // 0.7-0.95
-      }
-
-      calculateRevenue() {
-        const passengers = Math.floor(this.aircraft.capacity * this.loadFactor * this.demand / 100);
-        return passengers * this.price;
-      }
-
-      // Обновляем загрузку и спрос динамически (вызывается каждый день)
-      update() {
-        // Небольшие случайные колебания
-        this.demand = Math.min(100, Math.max(10, this.demand + (Math.random() - 0.5) * 10));
-        this.loadFactor = Math.min(0.95, Math.max(0.5, this.loadFactor + (Math.random() - 0.5) * 0.06));
-      }
-    }
-
-    class Airline {
-      constructor(name) {
-        this.name = name;
-        this.fleet = []; // массив Aircraft (принадлежащих авиакомпании)
-        this.employees = [];
-        this.reputation = 50;
-      }
-    }
-
-    // ------------------------------------------------------------
-    // 3. ИГРОВОЙ КЛАСС GAME
-    // ------------------------------------------------------------
-    class Game {
-      constructor() {
-        this.day = 1;
-        this.cash = 10000000;
-        this.airline = new Airline('Мои авиалинии');
-
-        // Инициализация аэропортов
-        this.airports = AIRPORTS_DATA.map(a => new Airport(a));
-
-        // Инициализация всех доступных самолётов (глобальный рынок)
-        this.availableAircrafts = AIRCRAFTS_DATA.map(a => new Aircraft(a));
-
-        // Флот авиакомпании (изначально пуст) — добавим несколько самолётов для старта
-        this.airline.fleet.push(new Aircraft(AIRCRAFTS_DATA[0])); // Boeing 737
-        this.airline.fleet.push(new Aircraft(AIRCRAFTS_DATA[1])); // A320
-
-        // Маршруты
-        this.routes = [];
-
-        // Конкуренты (пока заглушка)
-        this.competitors = [];
-
-        // Карта (будет инициализирована позже)
-        this.map = null;
-        this.markers = [];
-        this.routeLines = [];
-
-        // Создаём стартовый маршрут для примера
-        const from = this.airports.find(a => a.id === 'lhr');
-        const to = this.airports.find(a => a.id === 'jfk');
-        const ac = this.airline.fleet[0];
-        if (from && to && ac) {
-          this.addRoute(from.id, to.id, ac.id, 450);
-        }
-      }
-
-      // Добавление маршрута по ID аэропортов и ID самолёта
-      addRoute(fromId, toId, aircraftId, price) {
-        const from = this.airports.find(a => a.id === fromId);
-        const to = this.airports.find(a => a.id === toId);
-        if (!from || !to) return false;
-
-        // Ищем самолёт в флоте
-        const ac = this.airline.fleet.find(a => a.id === aircraftId);
-        if (!ac) return false;
-
-        // Проверяем дальность
-        const distance = this.calcDistance(from.lat, from.lng, to.lat, to.lng);
-        if (distance > ac.range) {
-          alert(`Дальность маршрута (${Math.round(distance)} км) превышает дальность самолёта (${ac.range} км)`);
-          return false;
-        }
-
-        // Проверяем, не существует ли уже такой маршрут
-        const exists = this.routes.some(r => r.from.id === fromId && r.to.id === toId && r.aircraft.id === aircraftId);
-        if (exists) {
-          alert('Такой маршрут уже существует');
-          return false;
-        }
-
-        const route = new Route(from, to, ac, price);
-        this.routes.push(route);
-        this.updateMapRoutes();
-        return true;
-      }
-
-      // Расчёт расстояния (гаверсинус) в км
-      calcDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-          Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
-      }
-
-      // Переход на следующий день
-      nextDay() {
-        this.day++;
-
-        // Доход от маршрутов
-        let totalRevenue = 0;
-        for (const route of this.routes) {
-          route.update(); // обновляем спрос и загрузку
-          const revenue = route.calculateRevenue();
-          totalRevenue += revenue;
-        }
-        this.cash += totalRevenue;
-
-        // Расходы на обслуживание самолётов в флоте
-        let totalMaintenance = 0;
-        for (const ac of this.airline.fleet) {
-          totalMaintenance += ac.maintenanceCost;
-        }
-        this.cash -= totalMaintenance;
-
-        // Расходы на маршруты (топливо и т.п.) - упрощённо
-        const fuelCost = this.routes.length * 200;
-        this.cash -= fuelCost;
-
-        // Ограничение снизу (не уходим в минус, но показываем)
-        if (this.cash < 0) this.cash = 0;
-
-        // Обновляем UI
-        updateUI(this);
-        // Обновляем маршруты на карте (если нужно)
-        this.updateMapRoutes();
-      }
-
-      // Обновление линий маршрутов на карте
-      updateMapRoutes() {
-        if (!this.map) return;
-        // Удаляем старые линии
-        for (const line of this.routeLines) {
-          this.map.removeLayer(line);
-        }
-        this.routeLines = [];
-
-        for (const route of this.routes) {
-          const latlngs = [
-            [route.from.lat, route.from.lng],
-            [route.to.lat, route.to.lng]
-          ];
-          const line = L.polyline(latlngs, { color: '#ffd966', weight: 3, opacity: 0.7 });
-          line.addTo(this.map);
-          this.routeLines.push(line);
-        }
-      }
-
-      // Покупка нового самолёта
-      buyAircraft(aircraftId) {
-        const acData = AIRCRAFTS_DATA.find(a => a.id === aircraftId);
-        if (!acData) return false;
-        if (this.cash < acData.price) {
-          alert('Недостаточно средств!');
-          return false;
-        }
-        this.cash -= acData.price;
-        const newAc = new Aircraft(acData);
-        this.airline.fleet.push(newAc);
-        updateUI(this);
-        return true;
-      }
-    }
-
-    // ------------------------------------------------------------
-    // 4. ИНИЦИАЛИЗАЦИЯ КАРТЫ
-    // ------------------------------------------------------------
-    function initMap(containerId) {
-      const map = L.map(containerId).setView([30, 10], 2);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(map);
-      return map;
-    }
-
-    // ------------------------------------------------------------
-    // 5. UI / ОТРИСОВКА
-    // ------------------------------------------------------------
-    function updateUI(game) {
-      // Шапка
-      document.getElementById('cash').textContent = Math.round(game.cash).toLocaleString();
-      document.getElementById('day').textContent = game.day;
-      document.getElementById('fleet-count').textContent = game.airline.fleet.length;
-
-      // Панель – отображаем текущий активный вид
-      const activeView = document.querySelector('[data-view].active');
-      if (activeView) {
-        const view = activeView.dataset.view;
-        renderPanel(game, view);
-      } else {
-        renderPanel(game, 'fleet');
-      }
-    }
-
-    function renderPanel(game, view) {
-      const panel = document.getElementById('panel-content');
-      panel.innerHTML = '';
-
-      switch (view) {
-        case 'fleet':
-          renderFleet(game, panel);
-          break;
-        case 'routes':
-          renderRoutes(game, panel);
-          break;
-        case 'add-route':
-          renderAddRouteForm(game, panel);
-          break;
-        case 'market':
-          renderMarket(game, panel);
-          break;
-        default:
-          panel.innerHTML = '<p>Выберите раздел</p>';
-      }
-    }
-
-    function renderFleet(game, panel) {
-      let html = '<h3>🛩️ Ваш флот</h3>';
-      if (game.airline.fleet.length === 0) {
-        html += '<p>У вас пока нет самолётов. Купите на рынке.</p>';
-      } else {
-        for (const ac of game.airline.fleet) {
-          html += `
-            <div class="item">
-              <span class="label">${ac.model}</span>
-              <span class="value">${ac.capacity} мест</span>
-            </div>
-          `;
-        }
-      }
-      panel.innerHTML = html;
-    }
-
-    function renderRoutes(game, panel) {
-      let html = '<h3>🗺️ Ваши маршруты</h3>';
-      if (game.routes.length === 0) {
-        html += '<p>Нет активных маршрутов. Создайте новый!</p>';
-      } else {
-        let totalRevenue = 0;
-        for (const route of game.routes) {
-          const rev = route.calculateRevenue();
-          totalRevenue += rev;
-          html += `
-            <div class="item">
-              <span class="label">${route.from.city} → ${route.to.city}</span>
-              <span class="value">${route.price}$ | загрузка ${Math.round(route.loadFactor * 100)}%</span>
-            </div>
-          `;
-        }
-        html += `<div class="item" style="background:#2a6f9c; margin-top:8px;">
-          <span class="label">💰 Общий доход за день</span>
-          <span class="value">${Math.round(totalRevenue).toLocaleString()} $</span>
-        </div>`;
-      }
-      panel.innerHTML = html;
-    }
-
-    function renderAddRouteForm(game, panel) {
-      let html = `
-        <h3>➕ Новый маршрут</h3>
-        <div class="route-form">
-          <label>Откуда</label>
-          <select id="route-from">
-            ${game.airports.map(a => `<option value="${a.id}">${a.city} (${a.name})</option>`).join('')}
-          </select>
-          <label>Куда</label>
-          <select id="route-to">
-            ${game.airports.map(a => `<option value="${a.id}">${a.city} (${a.name})</option>`).join('')}
-          </select>
-          <label>Самолёт</label>
-          <select id="route-aircraft">
-            ${game.airline.fleet.map(a => `<option value="${a.id}">${a.model} (${a.capacity} мест)</option>`).join('')}
-          </select>
-          <label>Цена билета ($)</label>
-          <input type="number" id="route-price" value="300" min="50" step="10">
-          <button id="btn-add-route">✈️ Открыть маршрут</button>
-        </div>
-      `;
-      panel.innerHTML = html;
-
-      // Обработчик кнопки
-      document.getElementById('btn-add-route').addEventListener('click', () => {
-        const fromId = document.getElementById('route-from').value;
-        const toId = document.getElementById('route-to').value;
-        const aircraftId = document.getElementById('route-aircraft').value;
-        const price = parseInt(document.getElementById('route-price').value);
-        if (!price || price < 10) {
-          alert('Введите корректную цену');
-          return;
-        }
-        const success = game.addRoute(fromId, toId, aircraftId, price);
-        if (success) {
-          updateUI(game);
-          // Переключаемся на маршруты
-          document.querySelector('[data-view="routes"]').click();
-        }
-      });
-    }
-
-    function renderMarket(game, panel) {
-      let html = `
-        <h3>📊 Рынок самолётов</h3>
-        <p>Выберите модель для покупки:</p>
-      `;
-      for (const ac of game.availableAircrafts) {
-        const inFleet = game.airline.fleet.some(a => a.id === ac.id);
-        html += `
-          <div class="item" style="flex-wrap: wrap;">
-            <span class="label">${ac.model} (${ac.capacity} мест)</span>
-            <span class="value">${ac.price.toLocaleString()} $</span>
-            ${inFleet ? '<span style="color:#8fcbff;">✔️ уже есть</span>' :
-              `<button class="buy-btn" data-id="${ac.id}" style="background:#2a6f9c;border:none;color:#fff;padding:4px 12px;border-radius:4px;cursor:pointer;">Купить</button>`}
-          </div>
-        `;
-      }
-      panel.innerHTML = html;
-
-      // Обработчики кнопок покупки
-      document.querySelectorAll('.buy-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const id = e.target.dataset.id;
-          game.buyAircraft(id);
-          // Обновить рынок (перерисовать)
-          renderPanel(game, 'market');
-        });
-      });
-    }
-
-    // ------------------------------------------------------------
-    // 6. ОБРАБОТЧИКИ СОБЫТИЙ UI
-    // ------------------------------------------------------------
-    function setupUI(game) {
-      // Переключение вкладок
-      document.querySelectorAll('[data-view]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('[data-view]').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          renderPanel(game, btn.dataset.view);
-        });
-      });
-
-      // Инициализация первой вкладки
-      document.querySelector('[data-view="fleet"]').classList.add('active');
-      renderPanel(game, 'fleet');
-    }
-
-    // ------------------------------------------------------------
-    // 7. ЗАПУСК ИГРЫ
-    // ------------------------------------------------------------
-    // Создаём экземпляр игры
-    const game = new Game();
-
-    // Инициализируем карту
-    const map = initMap('map-container');
-    game.map = map;
-
-    // Добавляем маркеры аэропортов
-    for (const airport of game.airports) {
-      const marker = L.marker([airport.lat, airport.lng])
-        .bindPopup(`<b>${airport.name}</b><br>${airport.city}, ${airport.country}`);
-      marker.addTo(map);
-      game.markers.push(marker);
-    }
-
-    // Рисуем начальные маршруты на карте
-    game.updateMapRoutes();
-
-    // Настраиваем UI
-    setupUI(game);
-
-    // Первый рендер
-    updateUI(game);
-
-    // Игровой цикл (каждые 3 секунды)
-    setInterval(() => {
-      game.nextDay();
-    }, 3000);
-
-    // Вывод в консоль для отладки
-    console.log('✈️ Airline Tycoon запущен! Используйте game для отладки.');
-    console.log('Доступные команды: game.buyAircraft("a320"), game.addRoute("lhr","dxb","b737",500)');
-  </script>
+​<div id="top-bar">
+<div class="company-info">
+<div class="company-name" id="ui-company-name">GAST Logistics</div>
+<div class="stats-display">
+<div class="stat-item">Баланс: <span class="stat-value money" id="ui-money">0$</span></div>
+<div class="stat-item">Флот: <span class="stat-value" id="ui-fleet-count">0</span></div>
+<div class="stat-item">Рейсы в воздухе: <span class="stat-value" id="ui-active-flights">0</span></div>
+</div>
+</div>
+<div class="time-display">
+<span class="stat-value" id="ui-game-date">01.01.2026 00:00</span>
+</div>
+</div>
+​<div id="main-container">
+<div id="sidebar">
+<div class="tabs-nav">
+<button class="tab-btn active" onclick="App.UI.switchTab('tab-company')">Офис</button>
+<button class="tab-btn" onclick="App.UI.switchTab('tab-fleet')">Флот</button>
+<button class="tab-btn" onclick="App.UI.switchTab('tab-contracts')">Контракты</button>
+<button class="tab-btn" onclick="App.UI.switchTab('tab-market')">Рынок</button>
+<button class="tab-btn" onclick="App.UI.switchTab('tab-logs')">Логи</button>
+</div>
+​<div id="tab-company" class="tab-content active">
+<div class="card">
+<div class="card-title">Статистика Компании</div>
+<div class="card-row"><span class="label">Всего заработано:</span><span id="ui-stats-earned">0$</span></div>
+<div class="card-row"><span class="label">Выполнено рейсов:</span><span id="ui-stats-flights">0</span></div>
+<div class="card-row"><span class="label">Потрачено на топливо:</span><span id="ui-stats-fuel">0$</span></div>
+<div class="card-row"><span class="label">Затраты на ремонт:</span><span id="ui-stats-repairs">0$</span></div>
+</div>
+<div class="card">
+<div class="card-title">Конкурирующие Авиакомпании</div>
+<div id="ui-competitors-list"></div>
+</div>
+</div>
+​<div id="tab-fleet" class="tab-content">
+<div id="ui-fleet-list">
+</div>
+</div>
+​<div id="tab-contracts" class="tab-content">
+<div id="ui-contracts-list">
+</div>
+</div>
+​<div id="tab-market" class="tab-content">
+<div id="ui-market-list">
+</div>
+</div>
+​<div id="tab-logs" class="tab-content">
+<div class="log-container" id="ui-logs">
+</div>
+</div>
+</div>
+​<div id="map"></div>
+</div>
+​<script>
+// ==========================================
+// КОРНЕВОЙ НАБОР ИГРОВЫХ ДАННЫХ И КОНФИГУРАЦИЙ
+// ==========================================
+const GameConfig = {
+version: "1.0.0", //
+saveKey: "ats_savegame_v1", //
+tickRate: 1000, // Миллисекунды игрового часа реального времени
+fuelPrice: 0.8, // Базовая стоимость единицы топлива
+wearMultiplier: 0.15, // Множитель износа за дальность
+repairCostPerPercent: 250, // Стоимость ремонта 1% износа
+baseMaintenanceTime: 4 // Базовое количество часов на ТО
+};  
+​// Масштабируемая база данных городов и аэропортов
+const AirportDB = {
+"SVO": { name: "Москва (Шереметьево)", lat: 55.9726, lng: 37.4146, fee: 1200 },
+"LHR": { name: "Лондон (Хитроу)", lat: 51.4700, lng: -0.4543, fee: 2500 },
+"JFK": { name: "Нью-Йорк (Дж. Кеннеди)", lat: 40.6413, lng: -73.7781, fee: 3100 },
+"NRT": { name: "Токио (Нарита)", lat: 35.7720, lng: 140.3929, fee: 2900 },
+"DXB": { name: "Дубай (Аль-Мактум)", lat: 24.8968, lng: 55.1613, fee: 2200 },
+"CDG": { name: "Париж (Шарль-де-Голль)", lat: 49.0097, lng: 2.5479, fee: 2400 },
+"SIN": { name: "Сингапур (Чанги)", lat: 1.3644, lng: 103.9915, fee: 2800 }
+};  
+​// Каталог моделей воздушных судов по классам
+const PlaneCatalog = {
+"light_cargo": {
+id: "light_cargo",
+name: "Ан-26 КГ",
+class: "Лёгкий",
+price: 1200000,
+capacity: 5500, // Грузоподъемность кг
+speed: 440, // Скорость км/ч
+consumption: 2.2, // Расход топлива единиц на км
+range: 2200, // Дальность км
+maintenanceHourPrice: 450
+},
+"medium_cargo": {
+id: "medium_cargo",
+name: "Ту-204С",
+class: "Средний",
+price: 4500000,
+capacity: 30000,
+speed: 810,
+consumption: 4.8,
+range: 4300,
+maintenanceHourPrice: 950
+},
+"heavy_cargo": {
+id: "heavy_cargo",
+name: "Ил-76ТД",
+class: "Тяжёлый",
+price: 12000000,
+capacity: 50000,
+speed: 780,
+consumption: 8.5,
+range: 5600,
+maintenanceHourPrice: 1800
+},
+"super_heavy": {
+id: "super_heavy",
+name: "Ан-124 Руслан",
+class: "Сверхтяжёлый",
+price: 35000000,
+capacity: 120000,
+speed: 800,
+consumption: 12.6,
+range: 4800,
+maintenanceHourPrice: 3500
+}
+};  
+​// Наборы погодных условий для генератора полётов
+const WeatherScenarios = [
+{ name: "Ясно", timeMod: 1.0, fuelMod: 1.0 },
+{ name: "Сильный встречный ветер", timeMod: 1.2, fuelMod: 1.3 },
+{ name: "Грозовой фронт", timeMod: 1.4, fuelMod: 1.1 },
+{ name: "Туман", timeMod: 1.1, fuelMod: 1.0 }
+];  
+​// ==========================================
+// АРХИТЕКТУРНЫЙ МОДУЛЬ EVENT BUS (ШИНА СОБЫТИЙ)
+// ==========================================
+const EventBus = {
+listeners: {},
+subscribe(event, callback) {
+if (!this.listeners[event]) this.listeners[event] = [];
+this.listeners[event].push(callback);
+},
+emit(event, data) {
+if (this.listeners[event]) {
+this.listeners[event].forEach(callback => callback(data));
+}
+// Логирование всех глобальных событий в UI
+if (event === "log") {
+App.UI.appendLog(data.text);
+}
+}
+};  
+​// ==========================================
+// ИГРОВОЕ СОСТОЯНИЕ (STATE MANAGEMENT)
+// ==========================================
+let State = {
+company: {
+name: "GAST Logistics",
+money: 15000000, // Стартовый капитал
+fleet: [],
+flights: [],
+stats: {
+earned: 0,
+flightsCompleted: 0,
+fuelSpent: 0,
+repairsSpent: 0
+}
+},
+competitors: [
+{ name: "Arkmine Air", money: 12000000, fleetSize: 1, activeFlights: 0 },
+{ name: "Tochka Cargo", money: 14000000, fleetSize: 2, activeFlights: 0 }
+],
+contracts: [],
+currentDate: new Date(2026, 5, 29, 12, 0), // Начало симуляции: 29 июня 2026 года
+nextContractId: 1,
+nextPlaneId: 101
+};  
+​// ==========================================
+// ГЕОГРАФИЧЕСКИЙ ДВИЖОК ДЛЯ РАБОТЫ С КООРДИНАТАМИ
+// ==========================================
+const GeoEngine = {
+// Математический расчет расстояния на сфере по формуле гаверсинусов
+getDistance(lat1, lng1, lat2, lng2) {
+const R = 6371; // Радиус Земли в километрах
+const dLat = (lat2 - lat1) * Math.PI / 180;
+const dLng = (lng2 - lng1) * Math.PI / 180;
+const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+Math.sin(dLng / 2) * Math.sin(dLng / 2);
+const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+return R * c;
+},
+// Линейная интерполяция между двумя координатами полета ВС
+interpolate(lat1, lng1, lat2, lng2, progress) {
+return {
+lat: lat1 + (lat2 - lat1) * progress,
+lng: lng1 + (lng2 - lng1) * progress
+};
+}
+};
+​// ==========================================
+// ГЛАВНЫЙ ОРКЕСТРАТОР ИГРЫ И ЕЕ КОМПОНЕНТОВ
+// ==========================================
+const App = {
+map: null,
+markers: {},
+polylines: {},
+​init() {
+this.initMap();
+this.loadGame();
+this.bindEvents();
+​// Первичная генерация контрактов для старта биржи
+if (State.contracts.length === 0) {
+for (let i = 0; i < 5; i++) this.generateRandomContract();
+}
+​this.UI.renderAll();
+​// Запуск главного игрового цикла (1 игровой час каждую секунду)
+setInterval(() => this.engineTick(), GameConfig.tickRate);
+​EventBus.emit("log", { text: "Система Airline Tycoon Simulator успешно развёрнута." });
+},
+​// Инициализация карты Leaflet с кастомным ночным шейдером
+initMap() {
+this.map = L.map('map', {
+center: [45.0, 15.0],
+zoom: 3,
+minZoom: 2,
+maxBounds: [[-85, -180], [85, 180]]
+});
+​L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+attribution: '© OpenStreetMap © CARTO'
+}).addTo(this.map);
+​// Нанесение статических аэропортов из БД на карту
+Object.keys(AirportDB).forEach(key => {
+const apt = AirportDB[key];
+L.circleMarker([apt.lat, apt.lng], {
+radius: 6,
+color: '#27ae60',
+fillColor: '#2c3e50',
+fillOpacity: 1,
+weight: 2
+}).addTo(this.map).bindPopup(<b>${apt.name} (${key})</b><br>Сбор: ${apt.fee}$);
+});
+},
+​// Главный вычислительный шаг игрового таймера (раз в час)
+engineTick() {
+// Продвижение игрового времени вперед на 1 час
+State.currentDate.setHours(State.currentDate.getHours() + 1);  
+​// Обработка логики текущих полетов флота
+this.processFlights();
+​// Обработка процессов технического обслуживания
+this.processMaintenance();
+​// Имитация активности искусственного интеллекта конкурентов
+this.processAI();  
+​// Случайный приток контрактов на биржу
+if (Math.random() < 0.4 && State.contracts.length < 10) {
+this.generateRandomContract();
+this.UI.renderContracts();
+}
+​// Автоматическое сохранение раз в 6 игровых часов
+if (State.currentDate.getHours() % 6 === 0) {
+this.saveGame();
+}
+​// Полное графическое обновление зависимых элементов интерфейса
+this.UI.updateTopBar();
+this.UI.renderCompanyStats();
+this.UI.renderFleet();
+},
+​// Логический конвейер обработки полетов
+processFlights() {
+const hourInMs = 3600000;  
+​for (let i = State.company.flights.length - 1; i >= 0; i--) {
+let flight = State.company.flights[i];
+let plane = State.company.fleet.find(p => p.id === flight.planeId);
+​let elapsed = State.currentDate.getTime() - flight.startTime;
+let progress = elapsed / flight.durationMs;
+​if (progress >= 1.0) {
+// Переход жизненного цикла: Посадка -> Разгрузка -> Свободен
+progress = 1.0;
+this.completeFlight(flight, plane, i);
+} else {
+// Обновление физического статуса ВС во время перелета
+if (progress > 0.05 && progress < 0.95) {
+plane.status = "FLIGHT"; // Полёт
+} else if (progress <= 0.05) {
+plane.status = "TAKEOFF"; // Взлёт
+} else {
+plane.status = "LANDING"; // Посадка
+}  
+​// Обновление графических координат метки ВС на Leaflet карте
+const currentPos = GeoEngine.interpolate(flight.fromLat, flight.fromLng, flight.toLat, flight.toLng, progress);
+this.updatePlaneMarker(plane.id, currentPos.lat, currentPos.lng, plane.name, plane.status);
+}
+}
+},
+​// Реализация завершения полета и выплата вознаграждения
+completeFlight(flight, plane, index) {
+// Снятие визуализации траектории с карты
+if (this.markers[plane.id]) {
+this.map.removeLayer(this.markers[plane.id]);
+delete this.markers[plane.id];
+}
+if (this.polylines[plane.id]) {
+this.map.removeLayer(this.polylines[plane.id]);
+delete this.polylines[plane.id];
+}
+​// Экономические расчеты
+State.company.money += flight.payout;
+State.company.stats.earned += flight.payout;
+State.company.stats.flightsCompleted += 1;  
+​// Начисление износа с учетом внешних параметров
+let baseWear = (flight.distance / 1000) * GameConfig.wearMultiplier;
+let finalWear = baseWear * flight.weather.fuelMod * (1 + (plane.upgrades.reliability * -0.1));
+plane.wear = Math.min(100, plane.wear + finalWear);  
+​// Проверка критического износа и автосервис
+if (plane.wear >= 100) {
+plane.status = "BROKEN"; // Аварийная поломка
+EventBus.emit("log", { text: ⚠️ Боинг/Ан ${plane.name} совершил экстренную посадку из-за критической поломки. });
+} else {
+plane.status = "FREE"; // Свободен
+}  
+​// Удаление выполненного перелета из текущего пула
+State.company.flights.splice(index, 1);
+EventBus.emit("log", { text: 🛬 Рейс по маршруту ${flight.from} -> ${flight.to} успешно завершैन. Доход: +${flight.payout}$. });
+},
+​// Обработка циклов технического обслуживания во флоту
+processMaintenance() {
+State.company.fleet.forEach(plane => {
+if (plane.status === "MAINTENANCE") {
+plane.maintenanceTicksLeft -= 1;
+if (plane.maintenanceTicksLeft <= 0) {
+plane.wear = 0;
+plane.status = "FREE";
+EventBus.emit("log", { text: 🛠️ Техническое обслуживание самолёта [${plane.name}] успешно завершено. });
+}
+}
+});
+},  
+​// Моделирование деятельности ИИ
+processAI() {
+State.competitors.forEach(comp => {
+// Раз в несколько часов ИИ берет абстрактный контракт или расширяет флот
+if (Math.random() < 0.15) {
+if (comp.activeFlights < comp.fleetSize) {
+comp.activeFlights += 1;
+}
+}
+if (Math.random() < 0.02 && comp.money > 5000000) {
+comp.fleetSize += 1;
+comp.money -= 3000000;
+}
+if (comp.activeFlights > 0 && Math.random() < 0.3) {
+comp.activeFlights -= 1;
+comp.money += Math.floor(Math.random() * 15000 + 5000);
+}
+});
+},  
+​// Генератор случайных контрактов на логистику
+generateRandomContract() {
+const keys = Object.keys(AirportDB);
+const fromKey = keys[Math.floor(Math.random() * keys.length)];
+let toKey = keys[Math.floor(Math.random() * keys.length)];
+while (toKey === fromKey) {
+toKey = keys[Math.floor(Math.random() * keys.length)];
+}  
+​const fromApt = AirportDB[fromKey];
+const toApt = AirportDB[toKey];
+​const distance = Math.round(GeoEngine.getDistance(fromApt.lat, fromApt.lng, toApt.lat, toApt.lng));
+const weather = WeatherScenarios[Math.floor(Math.random() * WeatherScenarios.length)];
+​// Расчет стоимости доставки груза на основе дистанции и погоды
+const baseWeight = Math.floor(Math.random() * 45000) + 4000;
+const payout = Math.round(distance * (baseWeight / 1000) * 0.45 * weather.timeMod);
+​const newContract = {
+id: State.nextContractId++,
+from: fromKey,
+to: toKey,
+distance: distance,
+weight: baseWeight,
+payout: payout,
+weather: weather
+};
+​State.contracts.push(newContract);
+},
+​// Визуализация движения самолета на Leaflet
+updatePlaneMarker(planeId, lat, lng, planeName, status) {
+// Картографическое отображение направления сверху (Top-Down SVG)
+const iconHtml = <svg width="30" height="30" viewBox="0 0 24 24" fill="none" style="transform: rotate(45deg);"> <path d="M21 16V14L13 9V3.5A1.5 1.5 0 0 0 11.5 2A1.5 1.5 0 0 0 10 3.5V9L2 14V16L10 13.5V19L8 20.5V22L11.5 21L15 22V20.5L13 19V13.5L21 16Z" fill="#e74c3c" stroke="#fff" stroke-width="1"/> </svg>;  
+​if (!this.markers[planeId]) {
+this.markers[planeId] = L.marker([lat, lng], {
+icon: L.divIcon({
+html: iconHtml,
+className: 'plane-marker',
+iconSize: [30, 30],
+iconAnchor: [15, 15]
+})
+}).addTo(this.map);
+} else {
+this.markers[planeId].setLatLng([lat, lng]);
+}
+​this.markers[planeId].bindPopup(<b>${planeName}</b><br>Статус: ${status});
+},
+​// ==========================================
+// МЕНЕДЖМЕНТ ОПЕРАЦИЙ ИГРОКА (БИЗНЕС ЛОГИКА)
+// ==========================================
+buyPlane(modelId) {
+const proto = PlaneCatalog[modelId];
+if (!proto) return;
+​if (State.company.money < proto.price) {
+alert("Недостаточно денежных средств на покупку ВС данной модели!");
+return;
+}
+​State.company.money -= proto.price;
+​const newPlane = {
+id: State.nextPlaneId++,
+modelId: modelId,
+name: ${proto.name} (${State.company.fleet.length + 1}),
+class: proto.class,
+capacity: proto.capacity,
+speed: proto.speed,
+consumption: proto.consumption,
+range: proto.range,
+maintenanceHourPrice: proto.maintenanceHourPrice,
+wear: 0,
+status: "FREE", // Жизненный цикл начинается со свободного статуса после подготовки
+upgrades: {
+engines: 0,
+cargo: 0,
+navigation: 0,
+reliability: 0
+}
+};  
+​State.company.fleet.push(newPlane);
+EventBus.emit("log", { text: ✈️ Куплено новое воздушное судно: ${newPlane.name} за ${proto.price}$. });
+​this.UI.renderAll();
+},
+​// Ручная отправка ВС на регламентные технические работы
+sendToMaintenance(planeId) {
+const plane = State.company.fleet.find(p => p.id === planeId);
+if (!plane || plane.status !== "FREE") return;  
+​const repairCost = Math.round(plane.wear * GameConfig.repairCostPerPercent);
+if (State.company.money < repairCost) {
+alert("Недостаточно денег для финансирования ремонтных работ!");
+return;
+}
+​State.company.money -= repairCost;
+State.company.stats.repairsSpent += repairCost;
+​plane.status = "MAINTENANCE";
+// Время ремонта снижается за счет прокачанной надежности
+plane.maintenanceTicksLeft = Math.max(1, GameConfig.baseMaintenanceTime - plane.upgrades.reliability);
+​EventBus.emit("log", { text: 🛠️ Самолёт ${plane.name} отправлен на ТО. Затраты: ${repairCost}$. Ожидание: ${plane.maintenanceTicksLeft} ч. });
+this.UI.renderAll();
+},
+​// Заключение контракта и физическое выполнение рейса
+assignContract(contractId, planeId) {
+const contractIndex = State.contracts.findIndex(c => c.id === contractId);
+const plane = State.company.fleet.find(p => p.id === planeId);  
+​if (contractIndex === -1 || !plane || plane.status !== "FREE") return;
+const contract = State.contracts[contractIndex];
+​// Проверка физических лимитов самолёта по дальности и грузоподъемности
+if (contract.distance > plane.range) {
+alert("Дистанция превышает предельную дальность полёта этого самолёта!");
+return;
+}
+if (contract.weight > plane.capacity) {
+alert("Масса груза превышает максимальную коммерческую загрузку самолёта!");
+return;
+}  
+​// Расчет стоимости потраченного топлива
+const fuelRequired = contract.distance * plane.consumption * (1 - (plane.upgrades.engines * 0.05));
+const fuelCost = Math.round(fuelRequired * GameConfig.fuelPrice);  
+​if (State.company.money < fuelCost) {
+alert("У компании нет достаточного количества свободных средств на заправку керосином!");
+return;
+}
+​// Оплата топлива авиаперевозчиком
+State.company.money -= fuelCost;
+State.company.stats.fuelSpent += fuelCost;
+​// Перевод статуса в жизненном цикле
+plane.status = "LOADING"; // Загрузка  
+​// Вычисление времени полета в миллисекундах реального времени
+const flightDurationHours = contract.distance / plane.speed;
+const durationMs = (flightDurationHours * GameConfig.tickRate);
+​const newFlight = {
+planeId: plane.id,
+from: contract.from,
+to: contract.to,
+fromLat: AirportDB[contract.from].lat,
+fromLng: AirportDB[contract.from].lng,
+toLat: AirportDB[contract.to].lat,
+toLng: AirportDB[contract.to].lng,
+distance: contract.distance,
+payout: contract.payout,
+startTime: State.currentDate.getTime(),
+durationMs: durationMs,
+weather: contract.weather
+};
+​// Визуализация трека полета на Leaflet карте
+this.polylines[plane.id] = L.polyline([
+[newFlight.fromLat, newFlight.fromLng],
+[newFlight.toLat, newFlight.toLng]
+], { color: '#3498db', weight: 2, dashArray: '5, 10' }).addTo(this.map);
+​State.company.flights.push(newFlight);
+​// Удаление контракта с биржи
+State.contracts.splice(contractIndex, 1);
+​EventBus.emit("log", { text: 🛫 Самолёт ${plane.name} вылетел по маршруту ${contract.from} -> ${contract.to}. });
+​this.UI.renderAll();
+},
+​// Апгрейд узлов воздушного судна
+upgradePlane(planeId, type) {
+const plane = State.company.fleet.find(p => p.id === planeId);
+if (!plane || plane.status !== "FREE") return;  
+​const upgradeCost = 500000; // Фиксированная цена одного этапа модернизации
+if (State.company.money < upgradeCost) {
+alert("Недостаточно средств для проведения модернизации!");
+return;
+}
+​if (plane.upgrades[type] >= 3) {
+alert("Достигнут максимальный уровень улучшения данного узла!");
+return;
+}
+​State.company.money -= upgradeCost;
+plane.upgrades[type] += 1;
+​// Интеграция улучшений в технические параметры самолёта
+if (type === "engines") plane.speed = Math.round(plane.speed * 1.05);
+if (type === "cargo") plane.capacity = Math.round(plane.capacity * 1.08);  
+​EventBus.emit("log", { text: 🔧 Модернизация ${plane.name}: Узел [${type}] улучшен до уровня ${plane.upgrades[type]}. });
+this.UI.renderAll();
+},
+​// ==========================================
+// СОХРАНЕНИЕ И ЗАГРУЗКА ИГРЫ (LOCAL STORAGE)
+// ==========================================
+saveGame() {
+const rawData = {
+company: State.company,
+competitors: State.competitors,
+contracts: State.contracts,
+currentDateStr: State.currentDate.toISOString(),
+nextContractId: State.nextContractId,
+nextPlaneId: State.nextPlaneId
+};
+localStorage.setItem(GameConfig.saveKey, JSON.stringify(rawData));
+},  
+​loadGame() {
+const saved = localStorage.getItem(GameConfig.saveKey);
+if (!saved) return;
+try {
+const parsed = JSON.parse(saved);
+State.company = parsed.company;
+State.competitors = parsed.competitors;
+State.contracts = parsed.contracts;
+State.currentDate = new Date(parsed.currentDateStr);
+State.nextContractId = parsed.nextContractId;
+State.nextPlaneId = parsed.nextPlaneId;
+} catch(e) {
+console.error("Ошибка десериализации сохранения, инициализирован пустой профиль.", e);
+}
+},
+​// Навешивание обработчиков UI событий
+bindEvents() {
+// При закрытии страницы автоматически сохраняем прогресс
+window.addEventListener("beforeunload", () => this.saveGame());
+},  
+​// ==========================================
+// ИНТЕРФЕЙСНЫЙ ПОДМОДУЛЬ (ОТРИСОВКА DOM)
+// ==========================================
+UI: {
+switchTab(tabId) {
+document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));  
+​document.getElementById(tabId).classList.add('active');
+​// Поиск кнопки вкладки по свойству вызова функции onclick
+const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+if (btn) btn.classList.add('active');
+},
+​updateTopBar() {
+document.getElementById("ui-money").innerText = ${State.company.money.toLocaleString()}$;
+document.getElementById("ui-fleet-count").innerText = State.company.fleet.length;
+document.getElementById("ui-active-flights").innerText = State.company.flights.length;
+​// Форматирование даты
+const d = State.currentDate;
+const dateStr = ${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:00;
+document.getElementById("ui-game-date").innerText = dateStr;
+},
+​renderCompanyStats() {
+document.getElementById("ui-stats-earned").innerText = ${State.company.stats.earned.toLocaleString()}$;
+document.getElementById("ui-stats-flights").innerText = State.company.stats.flightsCompleted;
+document.getElementById("ui-stats-fuel").innerText = ${State.company.stats.fuelSpent.toLocaleString()}$;
+document.getElementById("ui-stats-repairs").innerText = ${State.company.stats.repairsSpent.toLocaleString()}$;
+​// Рендеринг списка ИИ
+const compContainer = document.getElementById("ui-competitors-list");
+compContainer.innerHTML = "";
+State.competitors.forEach(c => {
+compContainer.innerHTML += <div class="card-row" style="margin-top:5px; border-bottom:1px solid #4b6584; padding-bottom:3px;"> <span><b>${c.name}</b></span> <span>Флот: ${c.fleetSize} | Полеты: ${c.activeFlights}</span> </div>;
+});
+},  
+​renderFleet() {
+const container = document.getElementById("ui-fleet-list");
+container.innerHTML = "";
+​if (State.company.fleet.length === 0) {
+container.innerHTML = <div style="text-align:center; color:#7f8c8d; margin-top:20px;">У вас пока нет купленных самолётов.</div>;
+return;
+}
+​State.company.fleet.forEach(plane => {
+const repairCost = Math.round(plane.wear * GameConfig.repairCostPerPercent);
+const isFree = plane.status === "FREE";
+​let statusClass = "status-free";
+let statusName = "Свободен";
+if (plane.status === "LOADING") { statusClass = "status-loading"; statusName = "Загрузка"; }
+if (plane.status === "FLIGHT") { statusClass = "status-flight"; statusName = "В полёте"; }
+if (plane.status === "TAKEOFF") { statusClass = "status-flight"; statusName = "Взлёт"; }
+if (plane.status === "LANDING") { statusClass = "status-flight"; statusName = "Посадка"; }
+if (plane.status === "MAINTENANCE") { statusClass = "status-maintenance"; statusName = "На ТО"; }
+if (plane.status === "BROKEN") { statusClass = "status-broken"; statusName = "Сломан"; }
+​container.innerHTML += `
+<div class="card">
+<div class="card-title">
+<span>{plane.name}</span>
+<span class="status-badge ${statusClass}">{statusName}</span>
+</div>
+<div class="card-row"><span class="label">Класс:</span><span>{plane.class}</span></div>
+<div class="card-row"><span class="label">Грузоподъёмность:</span><span>{(plane.capacity/1000).toFixed(1)} т</span></div>
+<div class="card-row"><span class="label">Дальность полёта:</span><span>{plane.range} км</span></div>
+<div class="card-row">
+<span class="label">Тех. износ:</span>
+<span>{plane.wear.toFixed(1)}%</span>
+</div>
+<div class="progress-container">
+<div class="progress-bar" style="width: ${plane.wear}%; background-color: ${plane.wear > 75 ? 'var(--accent-danger)' : 'var(--accent-success)'}"></div>
+</div>
+​<div style="margin-top:10px; display:flex; gap:5px;">
+<button class="btn btn-danger" style="margin-top:0;" {!isFree || plane.wear === 0 ? 'disabled' : ''} onclick="App.sendToMaintenance({plane.id})">
+Обслужить ({repairCost})
+</button>
+</div>
+​<div style="margin-top:8px; font-size:0.8rem; border-top:1px dashed #4b6584; padding-top:5px;">
+<b>Модернизация (Ур):</b> Эко: ${plane.upgrades.engines}/3 | Вес: ${plane.upgrades.cargo}/3 | Надёжность: ${plane.upgrades.reliability}/3
+<div style="display:flex; gap:3px; margin-top:5px;">
+<button class="btn" style="font-size:0.7rem; padding:4px; margin-top:0;" {!isFree || plane.upgrades.engines >= 3 ? 'disabled' : ''} onclick="App.upgradePlane({plane.id}, 'engines')">Двиг (500к)</button>
+<button class="btn" style="font-size:0.7rem; padding:4px; margin-top:0;" {!isFree || plane.upgrades.cargo >= 3 ? 'disabled' : ''} onclick="App.upgradePlane({plane.id}, 'cargo')">Отсек (500к)</button>
+<button class="btn" style="font-size:0.7rem; padding:4px; margin-top:0;" {!isFree || plane.upgrades.reliability >= 3 ? 'disabled' : ''} onclick="App.upgradePlane({plane.id}, 'reliability')">Броня (500к)</button>
+</div>
+</div>
+</div>
+`;
+});
+},
+​renderContracts() {
+const container = document.getElementById("ui-contracts-list");
+container.innerHTML = "";
+​if (State.contracts.length === 0) {
+container.innerHTML = <div style="text-align:center; color:#7f8c8d; margin-top:20px;">Нет доступных коммерческих предложений.</div>;
+return;
+}
+​State.contracts.forEach(c => {
+// Поиск свободных судов, способных принять этот груз по параметрам
+let optionsHtml = <option value="">-- Выберите самолёт --</option>;
+State.company.fleet.forEach(p => {
+if (p.status === "FREE") {
+const rangeOk = p.range >= c.distance;
+const weightOk = p.capacity >= c.weight;
+if (rangeOk && weightOk) {
+optionsHtml += <option value="${p.id}">${p.name} (Готов)</option>;
+}
+}
+});  
+​container.innerHTML += `
+<div class="card">
+<div class="card-title">
+<span>{c.from} ➔ ${c.to}</span>
+<span style="color:#f1c40f;">+${c.payout.toLocaleString()}</span>
+</div>
+<div class="card-row"><span class="label">Дистанция:</span><span>{c.distance} км</span></div>
+<div class="card-row"><span class="label">Масса груза:</span><span>{(c.weight/1000).toFixed(1)} тонн</span></div>
+<div class="card-row"><span class="label">Погода на трассе:</span><span style="color:#55efc4">${c.weather.name}</span></div>
+​<div style="margin-top:8px; display:flex; gap:5px; align-items:center;">
+<select id="select-contract-${c.id}" style="flex:1; padding:6px; background:#2c3e50; border:1px solid #4b6584; color:#fff; border-radius:4px; font-size:0.8rem;">
+${optionsHtml}
+</select>
+<button class="btn" style="margin-top:0; width:auto; padding:6px 12px;" onclick="const pid = document.getElementById('select-contract-${c.id}').value; if(pid) { App.assignContract(${c.id}, parseInt(pid)); } else { alert('Выберите воздушное судно!'); }">
+В рейс
+</button>
+</div>
+</div>
+`;
+});
+},
+​renderMarket() {
+const container = document.getElementById("ui-market-list");
+container.innerHTML = "";
+​Object.keys(PlaneCatalog).forEach(key => {
+const p = PlaneCatalog[key];
+container.innerHTML += `
+<div class="card">
+<div class="card-title">
+<span>{p.name}</span>
+<span style="font-size:0.85rem; color:#95a5a6;">{p.class} класс</span>
+</div>
+<div class="card-row"><span class="label">Стоимость ВС:</span><span style="color:#f1c40f; font-weight:bold;">{p.price.toLocaleString()}</span></div>
+<div class="card-row"><span class="label">Предельный вес:</span><span>{(p.capacity/1000).toFixed(1)} т</span></div>
+<div class="card-row"><span class="label">Дальность полёта:</span><span>{p.range} км</span></div>
+<div class="card-row"><span class="label">Крейс. скорость:</span><span>{p.speed} км/ч</span></div>
+<div class="card-row"><span class="label">Потребление топлива:</span><span>{p.consumption} ед/км</span></div>
+​<button class="btn" onclick="App.buyPlane('${p.id}')">Приобрести во флот</button>
+</div>
+`;
+});
+},
+​appendLog(text) {
+const container = document.getElementById("ui-logs");
+const d = State.currentDate;
+const timestamp = [${String(d.getHours()).padStart(2,'0')}:00];
+​container.innerHTML += <div class="log-item"> <span class="log-time">${timestamp}</span> <span class="log-text"> ${text}</span> </div>;
+container.scrollTop = container.scrollHeight;
+},
+​renderAll() {
+this.updateTopBar();
+this.renderCompanyStats();
+this.renderFleet();
+this.renderContracts();
+this.renderMarket();
+}
+}
+};
+​// Точка входа для запуска всей структуры логики после загрузки страницы HTML5
+window.addEventListener("DOMContentLoaded", () => {
+App.init();
+});
+</script>
 </body>
 </html>
