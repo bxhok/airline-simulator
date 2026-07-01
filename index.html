@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Airline Tycoon Simulator</title>
-  <meta name="description" content="Airline Tycoon Simulator — браузерная экономическая стратегия о грузовой авиакомпании. Управляйте флотом, контрактами, маршрутами, исследованиями и развитием компании.">
+  <meta name="description" content="Airline Tycoon Simulator — браузерная экономическая стратегия о развитии грузовой авиакомпании.">
   <link rel="preconnect" href="https://api.fontshare.com">
   <link rel="preconnect" href="https://unpkg.com">
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&f[]=cabinet-grotesk@500,700,800&display=swap" rel="stylesheet">
@@ -807,21 +807,6 @@
     .field label {
       font-size: var(--text-sm);
       color: var(--color-text-muted);
-    }
-
-    .range-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: var(--space-2);
-      align-items: center;
-    }
-
-    .range-row input[type="range"] {
-      padding: 0;
-      background: transparent;
-      border: none;
-      border-radius: 0;
-      accent-color: var(--color-primary);
     }
 
     .summary-grid {
@@ -1759,9 +1744,7 @@
         }
 
         emit(eventName, payload = {}) {
-          if (!this.listeners.has(eventName)) {
-            return;
-          }
+          if (!this.listeners.has(eventName)) return;
           for (const handler of this.listeners.get(eventName)) {
             try {
               handler(payload);
@@ -1787,10 +1770,7 @@
           if (!raw) return null;
           try {
             const parsed = JSON.parse(raw);
-            if (!parsed || typeof parsed !== "object" || !parsed.state) {
-              return null;
-            }
-            return parsed.state;
+            return parsed && parsed.state ? parsed.state : null;
           } catch (error) {
             console.error("Ошибка загрузки сохранения:", error);
             return null;
@@ -1816,8 +1796,7 @@
         }
 
         static formatMoney(value) {
-          const rounded = Math.round(value);
-          return "₽ " + rounded.toLocaleString("ru-RU");
+          return "₽ " + Math.round(value).toLocaleString("ru-RU");
         }
 
         static formatNumber(value) {
@@ -1848,10 +1827,6 @@
           const a = Math.sin(dLat / 2) ** 2 +
             Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
           return 2 * R * Math.asin(Math.sqrt(a));
-        }
-
-        static deepClone(obj) {
-          return JSON.parse(JSON.stringify(obj));
         }
 
         static percentileLabel(rep) {
@@ -1915,9 +1890,8 @@
           const distanceKm = Utils.haversineKm(fromAirport.lat, fromAirport.lng, toAirport.lat, toAirport.lng);
           const effectiveCapacity = model.capacity * researchEffects.capacityMultiplier;
           const effectiveFuelPerKm = model.fuelPerKm * researchEffects.fuelMultiplier * state.modifiers.fuelPrice;
-          const effectiveSpeed = model.speed;
           const weatherMultiplier = state.modifiers.flightTime * researchEffects.flightTimeMultiplier;
-          const flightHours = (distanceKm / effectiveSpeed) * weatherMultiplier;
+          const flightHours = (distanceKm / model.speed) * weatherMultiplier;
           const loadingHours = 0.8 + (contract.cargoTons / 60);
           const unloadHours = 0.55 + (contract.cargoTons / 75);
           const totalHours = flightHours + loadingHours + unloadHours;
@@ -1952,7 +1926,7 @@
             wearGain,
             requiredStops,
             effectiveCapacity,
-            speed: effectiveSpeed
+            speed: model.speed
           };
         }
 
@@ -1981,7 +1955,6 @@
               }
             }
           }
-
           return effects;
         }
 
@@ -1992,7 +1965,6 @@
             const model = this.repo.getPlaneModel(plane.modelId);
             return sum + model.insurance / 14;
           }, 0);
-
           const aiPressure = Math.max(0, state.company.level - 1) * 1500;
           const tax = Math.max(0, state.company.dailyRevenue * 0.04);
           const total = airportMaintenance + insurance + aiPressure + tax;
@@ -2082,7 +2054,7 @@
           const plan = this.economy.calculateFlightPlan(state, plane, contract);
 
           if (plan.distanceKm > model.range * (1 + plane.upgrades.efficiency * 0.05)) {
-            return { ok: false, reason: "Маршрут превышает доступную дальность полёта самолёта." };
+            return { ok: false, reason: "Маршрут превышает доступную дальность самолёта." };
           }
 
           plane.status = "loading";
@@ -2116,17 +2088,12 @@
         tick(state, tickMinutes) {
           for (const plane of state.fleet.planes) {
             plane.ageDays += tickMinutes / CONFIG.dayMinutes;
-
             if (!plane.flight) continue;
-
-            const flight = plane.flight;
-            flight.elapsedInPhase += tickMinutes;
-            flight.elapsedTotal += tickMinutes;
-
-            const currentPhaseDuration = flight.phaseMinutes[flight.phase];
-
-            if (flight.elapsedInPhase >= currentPhaseDuration) {
-              flight.elapsedInPhase = 0;
+            plane.flight.elapsedInPhase += tickMinutes;
+            plane.flight.elapsedTotal += tickMinutes;
+            const currentPhaseDuration = plane.flight.phaseMinutes[plane.flight.phase];
+            if (plane.flight.elapsedInPhase >= currentPhaseDuration) {
+              plane.flight.elapsedInPhase = 0;
               this.advanceFlightPhase(state, plane);
             }
           }
@@ -2198,7 +2165,6 @@
 
           if (Math.random() < breakdownRisk) {
             plane.wear = Utils.clamp(plane.wear + Utils.randomFloat(4, 12), 0, 100);
-            state.money -= plan.planRepairReserve || 0;
             this.bus.emit("flight:breakdown", { plane, contract });
           }
 
@@ -2263,11 +2229,10 @@
 
         generateContract(state) {
           const unlocked = state.airports.unlockedIds.map(id => this.repo.getAirport(id));
-          const locked = this.repo.getAllAirports().filter(item => !state.airports.unlockedIds.includes(item.id));
           const rep = state.company.reputation;
           const fromAirport = Utils.choice(unlocked);
-
           let possibleDestinations = this.repo.getAllAirports().filter(item => item.id !== fromAirport.id);
+
           possibleDestinations = possibleDestinations.filter(item => {
             if (state.airports.unlockedIds.includes(item.id)) return true;
             return item.level <= Math.max(2, Math.floor(rep / 20) + 2);
@@ -2281,19 +2246,15 @@
           const cargoBase = Utils.clamp(Math.round(distanceKm / 150 + Utils.randomInt(4, 24)), 6, 72);
           const cargoTons = vip ? Math.max(8, Math.round(cargoBase * 0.8)) : cargoBase;
 
-          const baseReward = (distanceKm * cargoTons * 15.5 * demand * urgency * state.modifiers.contractReward * this.economy.getGlobalEffects(state).rewardMultiplier);
+          const baseReward = distanceKm * cargoTons * 15.5 * demand * urgency * state.modifiers.contractReward * this.economy.getGlobalEffects(state).rewardMultiplier;
           const penalty = baseReward * (0.16 + urgency * 0.08);
           const deadlineHours = Math.max(5, (distanceKm / 620) * (vip ? 0.72 : 1) + Utils.randomFloat(3, 9));
           const deadlineTotalMinutes = state.time.totalMinutes + Math.round(deadlineHours * 60);
           const levelText = vip ? "VIP" : distanceKm > 2600 ? "Международный" : distanceKm > 1200 ? "Магистральный" : "Региональный";
 
-          const title = vip
-            ? `VIP-груз ${fromAirport.city} → ${toAirport.city}`
-            : `Контракт ${fromAirport.code}-${toAirport.code}`;
-
           return {
             id: "contract-" + Utils.slug(),
-            title,
+            title: vip ? `VIP-груз ${fromAirport.city} → ${toAirport.city}` : `Контракт ${fromAirport.code}-${toAirport.code}`,
             fromAirportId: fromAirport.id,
             toAirportId: toAirport.id,
             cargoTons,
@@ -2335,8 +2296,7 @@
 
           if (expired.length > 0) {
             state.contracts.available = state.contracts.available.filter(item => !expired.includes(item));
-            const repLoss = expired.length;
-            state.company.reputation = Utils.clamp(state.company.reputation - repLoss, 0, 100);
+            state.company.reputation = Utils.clamp(state.company.reputation - expired.length, 0, 100);
             state.company.missedContracts += expired.length;
             this.bus.emit("contracts:expired", { expired });
           }
@@ -2625,14 +2585,7 @@
         renderAirports(state) {
           const unlocked = new Set(state.airports.unlockedIds);
           for (const airport of this.repo.getAllAirports()) {
-            if (this.airportMarkers.has(airport.id)) {
-              const markerBundle = this.airportMarkers.get(airport.id);
-              const iconNode = markerBundle.marker.getElement()?.querySelector("div");
-              if (iconNode) {
-                iconNode.className = airport.hub || unlocked.has(airport.id) ? "hub-marker" : "city-marker";
-              }
-              continue;
-            }
+            if (this.airportMarkers.has(airport.id)) continue;
 
             const marker = L.marker([airport.lat, airport.lng], {
               icon: L.divIcon({
@@ -2663,10 +2616,7 @@
 
         syncRoutes(state) {
           for (const [routeKey, polyline] of this.routeLines.entries()) {
-            const stillExists = state.contracts.active.some(contract => {
-              const assignedPlane = state.fleet.planes.find(item => item.id === contract.assignedPlaneId);
-              return assignedPlane && assignedPlane.flight && `${contract.id}` === routeKey;
-            });
+            const stillExists = state.contracts.active.some(contract => `${contract.id}` === routeKey);
             if (!stillExists) {
               this.map.removeLayer(polyline);
               this.routeLines.delete(routeKey);
@@ -2712,11 +2662,7 @@
                 angle = this.computeBearing(fromAirport, toAirport);
                 routeName = `${fromAirport.city} → ${toAirport.city} · Загрузка`;
               } else if (plane.flight.phase === "flight") {
-                const progress = Utils.clamp(
-                  plane.flight.elapsedInPhase / plane.flight.phaseMinutes.flight,
-                  0,
-                  1
-                );
+                const progress = Utils.clamp(plane.flight.elapsedInPhase / plane.flight.phaseMinutes.flight, 0, 1);
                 const lat = fromAirport.lat + (toAirport.lat - fromAirport.lat) * progress;
                 const lng = fromAirport.lng + (toAirport.lng - fromAirport.lng) * progress;
                 latLng = [lat, lng];
@@ -2730,7 +2676,6 @@
             } else {
               const airport = this.repo.getAirport(plane.airportId);
               latLng = [airport.lat, airport.lng];
-              angle = 0;
               routeName = `${airport.city} · Свободен`;
             }
 
@@ -2791,6 +2736,7 @@
         showPlaneSheet(state, planeId) {
           const plane = state.fleet.planes.find(item => item.id === planeId);
           if (!plane) return;
+
           const titleNode = document.getElementById("route-sheet-title");
           const routeNode = document.getElementById("route-sheet-route");
           const progressNode = document.getElementById("route-sheet-progress");
@@ -2830,13 +2776,12 @@
         }
 
         getPhaseText(phase) {
-          const map = {
+          return {
             loading: "Загрузка",
             flight: "Полёт",
             unloading: "Разгрузка",
             maintenance: "Обслуживание"
-          };
-          return map[phase] || phase;
+          }[phase] || phase;
         }
       }
 
@@ -2849,7 +2794,6 @@
           this.tabButtons = [...document.querySelectorAll("[data-tab]")];
           this.sections = [...document.querySelectorAll("[data-section]")];
           this.selectedPlaneId = null;
-          this.selectedAirportId = null;
         }
 
         init() {
@@ -2880,29 +2824,12 @@
             document.getElementById("theme-icon").textContent = next === "dark" ? "☾" : "☀";
           });
 
-          document.getElementById("btn-save").addEventListener("click", () => {
-            this.engine.saveGame();
-          });
-
-          document.getElementById("btn-load").addEventListener("click", () => {
-            this.engine.loadGame();
-          });
-
-          document.getElementById("btn-open-help").addEventListener("click", () => {
-            document.getElementById("help-modal").classList.add("active");
-          });
-
-          document.getElementById("start-game-btn").addEventListener("click", () => {
-            document.getElementById("help-modal").classList.remove("active");
-          });
-
-          document.getElementById("close-help-btn").addEventListener("click", () => {
-            document.getElementById("help-modal").classList.remove("active");
-          });
-
-          document.getElementById("close-route-sheet").addEventListener("click", () => {
-            document.getElementById("route-sheet").classList.remove("active");
-          });
+          document.getElementById("btn-save").addEventListener("click", () => this.engine.saveGame());
+          document.getElementById("btn-load").addEventListener("click", () => this.engine.loadGame());
+          document.getElementById("btn-open-help").addEventListener("click", () => document.getElementById("help-modal").classList.add("active"));
+          document.getElementById("start-game-btn").addEventListener("click", () => document.getElementById("help-modal").classList.remove("active"));
+          document.getElementById("close-help-btn").addEventListener("click", () => document.getElementById("help-modal").classList.remove("active"));
+          document.getElementById("close-route-sheet").addEventListener("click", () => document.getElementById("route-sheet").classList.remove("active"));
 
           document.getElementById("buy-plane-btn").addEventListener("click", () => {
             const modelId = document.getElementById("purchase-plane-select").value;
@@ -2915,40 +2842,20 @@
             this.engine.handleAssignContract(planeId, contractId);
           });
 
-          document.getElementById("refresh-contracts-btn").addEventListener("click", () => {
-            this.engine.handleRefreshContracts();
-          });
-
-          document.getElementById("clear-log-btn").addEventListener("click", () => {
-            this.engine.clearLog();
-          });
-
-          document.getElementById("btn-speed").addEventListener("click", () => {
-            this.engine.timeManager.cycleSpeed();
-          });
-
-          document.getElementById("btn-pause").addEventListener("click", () => {
-            this.engine.timeManager.togglePause();
-          });
+          document.getElementById("refresh-contracts-btn").addEventListener("click", () => this.engine.handleRefreshContracts());
+          document.getElementById("clear-log-btn").addEventListener("click", () => this.engine.clearLog());
+          document.getElementById("btn-speed").addEventListener("click", () => this.engine.timeManager.cycleSpeed());
+          document.getElementById("btn-pause").addEventListener("click", () => this.engine.timeManager.togglePause());
         }
 
         bindSelectors() {
-          document.getElementById("purchase-plane-select").addEventListener("change", () => {
-            this.updatePurchasePreview();
-          });
-
-          document.getElementById("planner-contract-select").addEventListener("change", () => {
-            this.updatePlannerPreview();
-          });
-
-          document.getElementById("planner-plane-select").addEventListener("change", () => {
-            this.updatePlannerPreview();
-          });
+          document.getElementById("purchase-plane-select").addEventListener("change", () => this.updatePurchasePreview());
+          document.getElementById("planner-contract-select").addEventListener("change", () => this.updatePlannerPreview());
+          document.getElementById("planner-plane-select").addEventListener("change", () => this.updatePlannerPreview());
         }
 
         bindBus() {
           this.bus.on("ui:airportSelected", ({ airportId }) => {
-            this.selectedAirportId = airportId;
             this.mapManager.focusOnAirport(airportId);
             this.openTab("world");
           });
@@ -2959,9 +2866,7 @@
             this.openTab("fleet");
           });
 
-          this.bus.on("state:updated", () => {
-            this.renderAll();
-          });
+          this.bus.on("state:updated", () => this.renderAll());
 
           this.bus.on("time:speedChanged", ({ speed }) => {
             document.getElementById("speed-label").textContent = `${speed}x`;
@@ -2973,9 +2878,7 @@
 
         openTab(tab) {
           const button = this.tabButtons.find(item => item.dataset.tab === tab);
-          if (button) {
-            button.click();
-          }
+          if (button) button.click();
         }
 
         populateStaticSelects() {
@@ -2990,7 +2893,6 @@
           const modelId = document.getElementById("purchase-plane-select").value;
           const model = this.repo.getPlaneModel(modelId);
           if (!model) return;
-
           document.getElementById("purchase-plane-price").textContent = Utils.formatMoney(model.price);
           document.getElementById("purchase-plane-class").textContent = `Класс: ${model.class}`;
           document.getElementById("purchase-plane-capacity").textContent = `${model.capacity} т`;
@@ -3038,7 +2940,6 @@
           this.mapManager.renderAirports(state);
           this.mapManager.syncRoutes(state);
           this.mapManager.syncPlanes(state);
-
           if (this.selectedPlaneId) {
             this.mapManager.showPlaneSheet(state, this.selectedPlaneId);
           }
@@ -3155,15 +3056,11 @@
           });
 
           list.querySelectorAll("[data-action='upgrade-plane']").forEach(button => {
-            button.addEventListener("click", () => {
-              this.engine.handleUpgradePlane(button.dataset.planeId, button.dataset.upgrade);
-            });
+            button.addEventListener("click", () => this.engine.handleUpgradePlane(button.dataset.planeId, button.dataset.upgrade));
           });
 
           list.querySelectorAll("[data-action='sell-plane']").forEach(button => {
-            button.addEventListener("click", () => {
-              this.engine.handleSellPlane(button.dataset.planeId);
-            });
+            button.addEventListener("click", () => this.engine.handleSellPlane(button.dataset.planeId));
           });
         }
 
@@ -3218,9 +3115,7 @@
           });
 
           list.querySelectorAll("[data-action='focus-airport']").forEach(button => {
-            button.addEventListener("click", () => {
-              this.mapManager.focusOnAirport(button.dataset.airportId);
-            });
+            button.addEventListener("click", () => this.mapManager.focusOnAirport(button.dataset.airportId));
           });
         }
 
@@ -3260,9 +3155,7 @@
           }).join("");
 
           list.querySelectorAll("[data-action='start-research']").forEach(button => {
-            button.addEventListener("click", () => {
-              this.engine.handleStartResearch(button.dataset.researchId);
-            });
+            button.addEventListener("click", () => this.engine.handleStartResearch(button.dataset.researchId));
           });
         }
 
@@ -3300,15 +3193,11 @@
           }).join("");
 
           list.querySelectorAll("[data-action='focus-airport']").forEach(button => {
-            button.addEventListener("click", () => {
-              this.mapManager.focusOnAirport(button.dataset.airportId);
-            });
+            button.addEventListener("click", () => this.mapManager.focusOnAirport(button.dataset.airportId));
           });
 
           list.querySelectorAll("[data-action='unlock-airport']").forEach(button => {
-            button.addEventListener("click", () => {
-              this.engine.handleUnlockAirport(button.dataset.airportId);
-            });
+            button.addEventListener("click", () => this.engine.handleUnlockAirport(button.dataset.airportId));
           });
         }
 
@@ -3374,45 +3263,41 @@
         }
 
         getStatusBadge(status) {
-          const map = {
+          return {
             idle: { text: "Свободен", className: "badge-success" },
             loading: { text: "Загрузка", className: "badge-blue" },
             flight: { text: "В полёте", className: "badge-blue" },
             unloading: { text: "Разгрузка", className: "badge-warning" },
             maintenance: { text: "ТО", className: "badge-warning" }
-          };
-          return map[status] || { text: status, className: "badge-neutral" };
+          }[status] || { text: status, className: "badge-neutral" };
         }
 
         translateUpgrade(key) {
-          const map = {
+          return {
             capacity: "Груз",
             efficiency: "Эко",
             reliability: "Над",
             service: "Сервис"
-          };
-          return map[key] || key;
+          }[key] || key;
         }
 
         translatePhase(phase) {
-          const map = {
+          return {
             loading: "загрузка",
             flight: "полёт",
             unloading: "разгрузка",
             maintenance: "обслуживание"
-          };
-          return map[phase] || phase;
+          }[phase] || phase;
         }
 
         logTypeToBadge(type) {
-          const map = {
+          return {
             success: "badge-success",
             warning: "badge-warning",
             danger: "badge-danger",
             blue: "badge-blue",
             neutral: "badge-neutral"
-          };
-          return map[type] || "badge-neutral";
+          }[type] || "badge-neutral";
         }
       }
 
@@ -3491,7 +3376,6 @@
 
         init() {
           this.mapManager.init();
-          this.bus.on("state:updated", () => {});
           this.bindLoggers();
           this.contractManager.seedContracts(this.state);
           this.ui.init();
@@ -3634,7 +3518,10 @@
         }
 
         refreshLevel() {
-          const score = this.state.company.totalContractsCompleted * 3 + this.state.airports.unlockedIds.length * 2 + this.state.research.completedIds.length * 2 + Math.round(this.state.company.reputation / 10);
+          const score = this.state.company.totalContractsCompleted * 3 +
+            this.state.airports.unlockedIds.length * 2 +
+            this.state.research.completedIds.length * 2 +
+            Math.round(this.state.company.reputation / 10);
           this.state.company.level = Math.max(1, 1 + Math.floor(score / 8));
         }
 
@@ -3723,7 +3610,6 @@
             this.bus.emit("notify", { title: "Загрузка", body: "Сохранение не найдено.", type: "warning" });
             return;
           }
-
           this.state = this.mergeLoadedState(loaded);
           this.bus.emit("notify", { title: "Загрузка", body: "Сохранение успешно загружено.", type: "success" });
           this.bus.emit("state:updated");
@@ -3731,7 +3617,7 @@
 
         mergeLoadedState(loaded) {
           const base = this.createInitialState();
-          const merged = {
+          return {
             ...base,
             ...loaded,
             modifiers: { ...base.modifiers, ...(loaded.modifiers || {}) },
@@ -3751,7 +3637,6 @@
             stats: { ...base.stats, ...(loaded.stats || {}) },
             log: loaded.log || []
           };
-          return merged;
         }
       }
 
@@ -3760,6 +3645,6 @@
       window.airlineTycoonSimulator = game;
     })();
   </script>
-</body>
-            </html>
+</body>  
+</html>
 
